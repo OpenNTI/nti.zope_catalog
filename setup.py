@@ -39,7 +39,7 @@ setup(
 		'Programming Language :: Python :: 3.3',
 		'Programming Language :: Python :: 3.4',
 		'Programming Language :: Python :: Implementation :: CPython'
-        'Programming Language :: Python :: Implementation :: PyPy'
+		'Programming Language :: Python :: Implementation :: PyPy'
 	],
 	packages=find_packages('src'),
 	package_dir={'': 'src'},
@@ -47,16 +47,16 @@ setup(
 	tests_require=TESTS_REQUIRE,
 	install_requires=[
 		'setuptools',
-        'BTrees',
-        'persistent',
-        'pytz',
-        'six',
-        'zc.catalog',
+		'BTrees',
+		'persistent',
+		'pytz',
+		'six',
+		'zc.catalog',
 		'ZODB',
-        'zope.catalog',
+		'zope.catalog',
 		'zope.component',
-        'zope.container',
-        'zope.index',
+		'zope.container',
+		'zope.index',
 		'zope.interface',
 		'zope.security',
 		'nti.common'
