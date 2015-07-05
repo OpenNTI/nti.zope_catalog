@@ -15,6 +15,8 @@ from zope import interface
 
 from zc.catalog.interfaces import INormalizer
 
+from nti.common.string import safestr
+
 from .datetime import _AbstractNormalizerMixin
 
 @interface.implementer(INormalizer)
@@ -28,6 +30,5 @@ class StringTokenNormalizer(_AbstractNormalizerMixin):
 	def value(self, value):
 		if value is None:
 			return
-		if isinstance(value, bytes):
-			value = value.decode('utf-8')
+		value = safestr(value)
 		return value.lower().strip()

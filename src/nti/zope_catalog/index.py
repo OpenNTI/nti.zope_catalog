@@ -52,7 +52,7 @@ class _ZCApplyMixin(object):
 
 	def apply(self, query):
 		query = convertQuery(query)
-		return super(_ZCApplyMixin,self).apply(query)
+		return super(_ZCApplyMixin, self).apply(query)
 
 class _ZCAbstractIndexMixin(object):
 	"""
@@ -74,17 +74,17 @@ class NormalizingFieldIndex(zope.index.field.FieldIndex,
 	.. note:: For more flexibility, use a :class:`NormalizationWrapper`.
 	"""
 
-	#: We default to 64-bit trees
+	# : We default to 64-bit trees
 	family = BTrees.family64
 
-	def normalize( self, value ):
+	def normalize(self, value):
 		raise NotImplementedError()
 
 	def index_doc(self, docid, value):
-		super(NormalizingFieldIndex,self).index_doc( docid, self.normalize(value) )
+		super(NormalizingFieldIndex, self).index_doc(docid, self.normalize(value))
 
-	def apply( self, query ):
-		return super(NormalizingFieldIndex,self).apply( tuple([self.normalize(x) for x in query]) )
+	def apply(self, query):
+		return super(NormalizingFieldIndex, self).apply(tuple([self.normalize(x) for x in query]))
 
 class CaseInsensitiveAttributeFieldIndex(AttributeIndex,
 										 NormalizingFieldIndex):
@@ -93,7 +93,7 @@ class CaseInsensitiveAttributeFieldIndex(AttributeIndex,
 	min and max values.
 	"""
 
-	def normalize( self, value ):
+	def normalize(self, value):
 		if value:
 			value = value.lower()
 		return value
@@ -150,12 +150,12 @@ class IntegerAttributeIndex(IntegerValueIndex,
 @interface.implementer(IKeywordIndex)
 class NormalizingKeywordIndex(zope.index.keyword.CaseInsensitiveKeywordIndex,
 							  zope.container.contained.Contained):
-	
+
 	family = BTrees.family64
 
 	def _parseQuery(self, query):
 		if isinstance(query, collections.Mapping):
-			if 'query' in query: # support legacy 
+			if 'query' in query:  # support legacy
 				query_type = query.get('operator') or 'and'
 				query = query['query']
 			elif len(query) > 1:
@@ -173,28 +173,28 @@ class NormalizingKeywordIndex(zope.index.keyword.CaseInsensitiveKeywordIndex,
 			query_type = 'none'
 		else:
 			raise ValueError('Invalid query')
-		
+
 		if query_type not in ('any', 'none'):
 			query = list(query) if is_nonstr_iter(query) else [query]
 			query = [x for x in query if isinstance(x, six.string_types)]
 			if not query:
-				query_type, query =  None, None	
+				query_type, query = None, None
 			elif query_type == 'any_of':
-				query_type = 'or'	
+				query_type = 'or'
 			elif query_type == 'all':
 				query_type = 'and'
 		return query_type, query
-	
-	def apply(self, query): # any_of, any, between, none,
+
+	def apply(self, query):  # any_of, any, between, none,
 		query = convertQuery(query)
 		query_type, query = self._parseQuery(query)
 		if query_type is None:
 			res = self.family.IF.Set()
 		elif query_type in ('or', 'and'):
-			res = super(NormalizingKeywordIndex,self).search(query, operator=query_type)
+			res = super(NormalizingKeywordIndex, self).search(query, operator=query_type)
 		elif query_type in ('between'):
 			query = list(self._fwd_index.iterkeys(query[0], query[1]))
-			res = super(NormalizingKeywordIndex,self).search(query, operator='or')
+			res = super(NormalizingKeywordIndex, self).search(query, operator='or')
 		elif query_type == 'none':
 			assert zc.catalog.interfaces.IExtent.providedBy(query)
 			res = query - self.family.IF.Set(self.ids())
@@ -207,13 +207,13 @@ class NormalizingKeywordIndex(zope.index.keyword.CaseInsensitiveKeywordIndex,
 		else:
 			raise ValueError("unknown query type", query_type)
 		return res
-	
+
 	def ids(self):
 		return self._rev_index.keys()
-	
+
 	def words(self):
 		return self._fwd_index.keys()
-	
+
 	def remove_words(self, *seq):
 		seq = self.normalize(*seq)
 		for word in seq:
@@ -236,7 +236,7 @@ class NormalizingKeywordIndex(zope.index.keyword.CaseInsensitiveKeywordIndex,
 class AttributeKeywordIndex(AttributeIndex, NormalizingKeywordIndex):
 	pass
 
-@interface.implementer(ICatalogIndex) # The superclass forgets this
+@interface.implementer(ICatalogIndex)  # The superclass forgets this
 class NormalizationWrapper(_ZCApplyMixin,
 						   zc.catalog.catalogindex.NormalizationWrapper):
 	"""
@@ -246,7 +246,7 @@ class NormalizationWrapper(_ZCApplyMixin,
 	instances by only accepting keyword arguments.
 	"""
 
-	def __init__( self, field_name=None, interface=None, field_callable=False,
+	def __init__(self, field_name=None, interface=None, field_callable=False,
 				  index=None, normalizer=None, is_collection=False):
 		"""
 		You should only call this constructor with keyword arguments;
@@ -256,5 +256,5 @@ class NormalizationWrapper(_ZCApplyMixin,
 		"""
 		# sadly we can't reuse any of the defaults from the super classes, and we
 		# must rely on the order of parameters
-		super(NormalizationWrapper,self).__init__(field_name, interface, field_callable,
-												  index, normalizer, is_collection)
+		super(NormalizationWrapper, self).__init__(field_name, interface, field_callable,
+												   index, normalizer, is_collection)

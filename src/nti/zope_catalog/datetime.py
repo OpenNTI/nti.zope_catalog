@@ -12,8 +12,9 @@ __docformat__ = "restructuredtext en"
 logger = __import__('logging').getLogger(__name__)
 
 import time
-from pytz import UTC
 from datetime import datetime
+
+from pytz import UTC
 
 from zope import interface
 
@@ -87,7 +88,6 @@ class TimestampNormalizer(Persistent, _AbstractNormalizerMixin):
 		dt = dt.replace(tzinfo=UTC)
 		dt = self._datetime_normalizer.value(dt)
 		return time.mktime(dt.timetuple())
-
 
 	# The provided date-time normalizer supports taking
 	# datetime.date objects for the various range queries

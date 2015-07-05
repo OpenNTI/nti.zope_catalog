@@ -30,10 +30,11 @@ def is_broken(obj, uid=None):
 			if hasattr(obj, '_p_activate'):
 				obj._p_activate()
 			result = IBroken.providedBy(obj)
-	except POSError:	
+	except POSError:
 		logger.error("Ignoring broken object %s, %s", type(obj), uid)
 		result = True
 	return result
+isBroken = is_broken
 
 class ResultSet(object):
 	"""
@@ -62,7 +63,7 @@ class ResultSet(object):
 	def __iter__(self):
 		for _, obj in self.iter_pairs():
 			yield obj
-			
+
 class Catalog(_ZCatalog):
 	"""
 	An extended catalog. Features include:
@@ -82,7 +83,7 @@ class Catalog(_ZCatalog):
 	"""
 
 	def _visitSublocations(self):
-		for uid, obj in super(Catalog,self)._visitSublocations():
+		for uid, obj in super(Catalog, self)._visitSublocations():
 			if INoAutoIndex.providedBy(obj):
 				continue
 			yield uid, obj
@@ -103,7 +104,7 @@ class Catalog(_ZCatalog):
 				logger.error("Error indexing object %s(%s); %s", type(obj), uid, e)
 
 	def updateIndexes(self, ignore_persistence_exceptions=False):
-		indexes = list(self.values()) # avoid the btree iterator for each object
+		indexes = list(self.values())  # avoid the btree iterator for each object
 		to_catch = self._PERSISTENCE_EXCEPTIONS if ignore_persistence_exceptions else ()
 		for uid, obj in self._visitSublocations():
 			for index in indexes:
