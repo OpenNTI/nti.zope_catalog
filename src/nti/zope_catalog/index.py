@@ -74,7 +74,7 @@ class NormalizingFieldIndex(zope.index.field.FieldIndex,
 	.. note:: For more flexibility, use a :class:`NormalizationWrapper`.
 	"""
 
-	# : We default to 64-bit trees
+	# We default to 64-bit trees
 	family = BTrees.family64
 
 	def normalize(self, value):
@@ -86,6 +86,9 @@ class NormalizingFieldIndex(zope.index.field.FieldIndex,
 	def apply(self, query):
 		return super(NormalizingFieldIndex, self).apply(tuple([self.normalize(x) for x in query]))
 
+	def ids(self):
+		return self._rev_index.keys()
+
 class CaseInsensitiveAttributeFieldIndex(AttributeIndex,
 										 NormalizingFieldIndex):
 	"""
@@ -94,8 +97,7 @@ class CaseInsensitiveAttributeFieldIndex(AttributeIndex,
 	"""
 
 	def normalize(self, value):
-		if value:
-			value = value.lower()
+		value = value.lower() if value else value
 		return value
 
 # Normalizing and wrappers:
