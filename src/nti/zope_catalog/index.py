@@ -88,6 +88,10 @@ class NormalizingFieldIndex(zope.index.field.FieldIndex,
 
 	def ids(self):
 		return self._rev_index.keys()
+	
+	def doc_value(self, doc_id):
+		result = self._rev_index.get(doc_id)
+		return result
 
 class CaseInsensitiveAttributeFieldIndex(AttributeIndex,
 										 NormalizingFieldIndex):
