@@ -16,7 +16,6 @@ from zope.catalog.catalog import Catalog as _ZCatalog
 from ZODB.interfaces import IBroken
 
 from ZODB.POSException import POSError
-from ZODB.POSException import POSKeyError
 
 from .interfaces import INoAutoIndex
 
@@ -92,7 +91,7 @@ class Catalog(_ZCatalog):
 	# we may get TypeError: __setstate__() takes exactly 2 arguments (1 given)
 	# error or creator cannot be resolved (if a user has been deleted)
 	# catch and continue
-	_PERSISTENCE_EXCEPTIONS = (POSKeyError, TypeError)
+	_PERSISTENCE_EXCEPTIONS = (POSError, TypeError)
 
 	# disable warning about different number of arguments than superclass
 	# pylint: disable=I0011,W0221
