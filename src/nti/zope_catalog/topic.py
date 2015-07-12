@@ -97,7 +97,7 @@ class ExtentFilteredSet(zope.index.topic.filter.FilteredSetBase):
 	#: this is an extent.
 	_ids = None
 
-	def __init__( self, id, filter, family=None ):
+	def __init__( self, fid, expr, family=None ):
 		"""
 		Create a new filtered extent.
 
@@ -113,7 +113,7 @@ class ExtentFilteredSet(zope.index.topic.filter.FilteredSetBase):
 			`IFoo.providedBy`, instead pass a global (function) object
 			in your own module.
 		"""
-		super(ExtentFilteredSet, self).__init__( id, filter, family=family )
+		super(ExtentFilteredSet, self).__init__(fid, expr, family=family)
 		# The super implementation calls clear() to establish `_ids`
 
 	def ids(self):
