@@ -15,6 +15,7 @@ from zope.catalog.interfaces import INoAutoIndex
 from zope.catalog.interfaces import INoAutoReindex
 from zope.catalog.keyword import IKeywordIndex as IZCKeywordIndex
 
+from zc.catalog.interfaces import ISetIndex as IZCSetIndex
 from zc.catalog.interfaces import IValueIndex as IZCValueIndex
 
 class INoAutoIndexEver(INoAutoIndex, INoAutoReindex):
@@ -25,12 +26,12 @@ class INoAutoIndexEver(INoAutoIndex, INoAutoReindex):
 	"""
 
 class IKeywordIndex(IZCKeywordIndex):
-	
+
 	def ids():
 		"""
 		return the docids in this Index
 		"""
-	
+
 	def words():
 		"""
 		return the words in this Index
@@ -40,9 +41,16 @@ class IKeywordIndex(IZCKeywordIndex):
 		"""
 		remove the specified sequence of words
 		"""
-		
+
 class IValueIndex(IZCValueIndex):
-	
+
+	def zip(doc_ids=()):
+		"""
+		return an iterator of doc_id, value pairs
+		"""
+
+class ISetIndex(IZCSetIndex):
+
 	def zip(doc_ids=()):
 		"""
 		return an iterator of doc_id, value pairs

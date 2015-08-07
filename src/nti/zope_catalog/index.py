@@ -32,6 +32,7 @@ import BTrees
 from nti.common.property import alias
 from nti.common.iterables import is_nonstr_iter
 
+from .interfaces import ISetIndex
 from .interfaces import IValueIndex
 from .interfaces import IKeywordIndex
 
@@ -127,9 +128,14 @@ class AttributeValueIndex(ValueIndex,
 						  zc.catalog.catalogindex.ValueIndex):
 	pass
 
+@interface.implementer(ISetIndex)
 class SetIndex(_ZCAbstractIndexMixin,
 			   zc.catalog.index.SetIndex):
-	pass
+
+	def zip(self, doc_ids=()):
+		for doc_id in doc_ids or ():
+			value = self.documents_to_values.get(doc_id)
+			yield doc_id, set(value) if value is not None else None
 
 class AttributeSetIndex(SetIndex,
 						zc.catalog.catalogindex.SetIndex):
