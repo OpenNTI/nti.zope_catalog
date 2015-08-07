@@ -11,9 +11,11 @@ __docformat__ = "restructuredtext en"
 
 logger = __import__('logging').getLogger(__name__)
 
-from zope.catalog.keyword import IKeywordIndex
 from zope.catalog.interfaces import INoAutoIndex
 from zope.catalog.interfaces import INoAutoReindex
+from zope.catalog.keyword import IKeywordIndex as IZCKeywordIndex
+
+from zc.catalog.interfaces import IValueIndex as IZCValueIndex
 
 class INoAutoIndexEver(INoAutoIndex, INoAutoReindex):
 	"""
@@ -22,7 +24,7 @@ class INoAutoIndexEver(INoAutoIndex, INoAutoReindex):
 	fire.
 	"""
 
-class IKeywordIndex(IKeywordIndex):
+class IKeywordIndex(IZCKeywordIndex):
 	
 	def ids():
 		"""
@@ -37,4 +39,11 @@ class IKeywordIndex(IKeywordIndex):
 	def remove_words(*words):
 		"""
 		remove the specified sequence of words
+		"""
+		
+class IValueIndex(IZCValueIndex):
+	
+	def zip(doc_ids=()):
+		"""
+		return an iterator of doc_id, value pairs
 		"""

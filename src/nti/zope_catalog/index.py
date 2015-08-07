@@ -32,6 +32,7 @@ import BTrees
 from nti.common.property import alias
 from nti.common.iterables import is_nonstr_iter
 
+from .interfaces import IValueIndex
 from .interfaces import IKeywordIndex
 
 def convertQuery(query):
@@ -112,10 +113,15 @@ class CaseInsensitiveAttributeFieldIndex(AttributeIndex,
 # to wrap another AttributeIndex, only a plain ValueIndex or SetIndex. Note
 # that it is somewhat painful to construct
 
+@interface.implementer(IValueIndex)
 class ValueIndex(_ZCApplyMixin,
 				 _ZCAbstractIndexMixin,
 				 zc.catalog.index.ValueIndex):
-	pass
+	
+	def zip(self, doc_ids=()):
+		for doc_id in doc_ids or ():
+			value = self.documents_to_values.get(doc_id)
+			yield doc_id, value
 
 class AttributeValueIndex(ValueIndex,
 						  zc.catalog.catalogindex.ValueIndex):
