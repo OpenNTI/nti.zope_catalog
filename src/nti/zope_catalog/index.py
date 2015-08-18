@@ -128,7 +128,7 @@ class AttributeValueIndex(ValueIndex,
 						  zc.catalog.catalogindex.ValueIndex):
 	pass
 
-@interface.implementer(ISetIndex)
+@interface.implementer(ISetIndex, ICatalogIndex)
 class SetIndex(_ZCAbstractIndexMixin,
 			   zc.catalog.index.SetIndex):
 
