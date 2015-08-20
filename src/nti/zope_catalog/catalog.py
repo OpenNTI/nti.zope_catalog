@@ -49,14 +49,18 @@ class ResultSet(object):
 	def __len__(self):
 		return len(self.uids)
 
+	def getObject(self, uid):
+		if self.ignore_invalid:
+			obj = self.uidutil.queryObject(uid)
+			if is_broken(obj, uid):
+				obj = None
+		else:
+			obj = self.uidutil.getObject(uid)
+		return obj
+
 	def iter_pairs(self):
 		for uid in self.uids:
-			if self.ignore_invalid:
-				obj = self.uidutil.queryObject(uid)
-				if is_broken(obj, uid):
-					obj = None
-			else:
-				obj = self.uidutil.getObject(uid)
+			obj = self.getObject(uid)
 			if obj is not None:
 				yield uid, obj
 
