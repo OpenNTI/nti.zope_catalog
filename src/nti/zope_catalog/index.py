@@ -35,6 +35,7 @@ from nti.common.iterables import is_nonstr_iter
 from .interfaces import ISetIndex
 from .interfaces import IValueIndex
 from .interfaces import IKeywordIndex
+from .interfaces import IIntegerValueIndex
 
 def convertQuery(query):
 	# Convert zope.index style two-tuple (min/max)
@@ -128,7 +129,7 @@ class AttributeValueIndex(ValueIndex,
 						  zc.catalog.catalogindex.ValueIndex):
 	pass
 
-@interface.implementer(ISetIndex, ICatalogIndex)
+@interface.implementer(ISetIndex)
 class SetIndex(_ZCAbstractIndexMixin,
 			   zc.catalog.index.SetIndex):
 
@@ -141,6 +142,7 @@ class AttributeSetIndex(SetIndex,
 						zc.catalog.catalogindex.SetIndex):
 	pass
 
+@interface.implementer(IIntegerValueIndex)
 class IntegerValueIndex(_ZCApplyMixin,
 						_ZCAbstractIndexMixin,
 						zc.catalog.index.ValueIndex):
@@ -154,6 +156,11 @@ class IntegerValueIndex(_ZCApplyMixin,
 		super(IntegerValueIndex, self).clear()
 		self.documents_to_values = self.family.II.BTree()
 		self.values_to_documents = self.family.IO.BTree()
+
+	def zip(self, doc_ids=()):
+		for doc_id in doc_ids or ():
+			value = self.documents_to_values.get(doc_id)
+			yield doc_id, value
 
 class IntegerAttributeIndex(IntegerValueIndex,
 							zc.catalog.catalogindex.ValueIndex):
@@ -250,6 +257,11 @@ class NormalizingKeywordIndex(zope.index.keyword.CaseInsensitiveKeywordIndex,
 			except KeyError:
 				pass
 	removeWords = remove_words
+	
+	def zip(self, doc_ids=()):
+		for doc_id in doc_ids or ():
+			value = self._rev_index.get(doc_id)
+			yield doc_id, set(value) if value is not None else None
 
 class AttributeKeywordIndex(AttributeIndex, NormalizingKeywordIndex):
 	pass
