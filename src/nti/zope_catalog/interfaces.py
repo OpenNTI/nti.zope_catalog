@@ -15,6 +15,7 @@ from zope import interface
 
 from zope.catalog.interfaces import INoAutoIndex
 from zope.catalog.interfaces import INoAutoReindex
+from zope.catalog.field import IFieldIndex as IZVFieldIndex
 from zope.catalog.keyword import IKeywordIndex as IZCKeywordIndex
 
 from zc.catalog.interfaces import ISetIndex as IZCSetIndex
@@ -49,6 +50,13 @@ class IKeywordIndex(IZCKeywordIndex, IZipMixin):
 	def remove_words(*words):
 		"""
 		remove the specified sequence of words
+		"""
+
+class IFieldIndex(IZVFieldIndex, IZipMixin):
+	
+	def doc_value(doc_id):
+		"""
+		return the value associated with the specified doc id
 		"""
 
 class IValueIndex(IZCValueIndex, IZipMixin):

@@ -16,7 +16,6 @@ import collections
 
 from zope import interface
 
-from zope.catalog.field import IFieldIndex
 from zope.catalog.attribute import AttributeIndex
 from zope.catalog.interfaces import ICatalogIndex
 
@@ -33,6 +32,7 @@ from nti.common.property import alias
 from nti.common.iterables import is_nonstr_iter
 
 from .interfaces import ISetIndex
+from .interfaces import IFieldIndex
 from .interfaces import IValueIndex
 from .interfaces import IKeywordIndex
 from .interfaces import IIntegerValueIndex
@@ -95,6 +95,11 @@ class NormalizingFieldIndex(zope.index.field.FieldIndex,
 	def doc_value(self, doc_id):
 		result = self._rev_index.get(doc_id)
 		return result
+	
+	def zip(self, doc_ids=()):
+		for doc_id in doc_ids or ():
+			value = self._rev_index.get(doc_id)
+			yield doc_id, value
 
 class CaseInsensitiveAttributeFieldIndex(AttributeIndex,
 										 NormalizingFieldIndex):
