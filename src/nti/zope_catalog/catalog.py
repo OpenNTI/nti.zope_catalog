@@ -55,7 +55,7 @@ class ResultSet(object):
 			if is_broken(obj, uid):
 				obj = None
 		else:
-			obj = self.uidutil.getObject(uid)
+			obj = self.uidutil.queryObject(uid)
 		return obj
 
 	def iter_pairs(self):
