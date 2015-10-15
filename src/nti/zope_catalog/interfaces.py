@@ -13,6 +13,7 @@ logger = __import__('logging').getLogger(__name__)
 
 from zope import interface
 
+from zope.catalog.interfaces import ICatalog
 from zope.catalog.interfaces import INoAutoIndex
 from zope.catalog.interfaces import INoAutoReindex
 from zope.catalog.field import IFieldIndex as IZVFieldIndex
@@ -53,7 +54,7 @@ class IKeywordIndex(IZCKeywordIndex, IZipMixin):
 		"""
 
 class IFieldIndex(IZVFieldIndex, IZipMixin):
-	
+
 	def doc_value(doc_id):
 		"""
 		return the value associated with the specified doc id
@@ -67,3 +68,18 @@ class ISetIndex(IZCSetIndex, IZipMixin):
 
 class IIntegerValueIndex(IZCValueIndex, IZipMixin):
 	pass
+
+class IMetadataCatalog(ICatalog):
+	"""
+	The nti metadata catalog.
+	"""
+
+	def index_doc(self, iid, ob):
+		"""
+		This may or may not update our underlying index.
+		"""
+
+	def force_index_doc(self, iid, ob):
+		"""
+		Force the underlying index to update.
+		"""
