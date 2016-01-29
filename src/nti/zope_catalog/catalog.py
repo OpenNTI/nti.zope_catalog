@@ -68,6 +68,12 @@ class ResultSet(object):
 		for _, obj in self.iter_pairs():
 			yield obj
 
+	def count(self):
+		result = 0
+		for _, _ in self.iter_pairs():
+			result += 1
+		return result
+
 class Catalog(_ZCatalog):
 	"""
 	An extended catalog. Features include:
