@@ -17,7 +17,7 @@ from zc.catalog.interfaces import INormalizer
 
 from nti.common.string import safestr
 
-from .datetime import _AbstractNormalizerMixin
+from nti.zope_catalog.datetime import _AbstractNormalizerMixin
 
 @interface.implementer(INormalizer)
 class StringTokenNormalizer(_AbstractNormalizerMixin):

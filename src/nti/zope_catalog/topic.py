@@ -76,7 +76,7 @@ class TopicIndex(zope.index.topic.TopicIndex,
 				query = {'operator': 'or', 'query': query['any_of']}
 			elif 'all_of' in query:
 				query = {'operator': 'and', 'query': query['all_of']}
-		return super(TopicIndex,self).apply(query)
+		return super(TopicIndex, self).apply(query)
 
 class ExtentFilteredSet(zope.index.topic.filter.FilteredSetBase):
 	"""
@@ -97,7 +97,7 @@ class ExtentFilteredSet(zope.index.topic.filter.FilteredSetBase):
 	#: this is an extent.
 	_ids = None
 
-	def __init__( self, fid, expr, family=None ):
+	def __init__(self, fid, expr, family=None):
 		"""
 		Create a new filtered extent.
 
@@ -125,7 +125,7 @@ class ExtentFilteredSet(zope.index.topic.filter.FilteredSetBase):
 															 family=self.family)
 		self._ids = self._extent.set
 
-	def index_doc( self, docid, context ):
+	def index_doc(self, docid, context):
 		try:
 			self._extent.add(docid, context)
 		except ValueError:

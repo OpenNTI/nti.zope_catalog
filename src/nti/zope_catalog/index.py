@@ -17,11 +17,13 @@ import collections
 from zope import interface
 
 from zope.catalog.attribute import AttributeIndex
+
 from zope.catalog.interfaces import ICatalogIndex
+
+import zope.container.contained
 
 import zope.index.field
 import zope.index.keyword
-import zope.container.contained
 
 import zc.catalog.index
 import zc.catalog.catalogindex
@@ -31,11 +33,11 @@ import BTrees
 from nti.common.property import alias
 from nti.common.iterables import is_nonstr_iter
 
-from .interfaces import ISetIndex
-from .interfaces import IFieldIndex
-from .interfaces import IValueIndex
-from .interfaces import IKeywordIndex
-from .interfaces import IIntegerValueIndex
+from nti.zope_catalog.interfaces import ISetIndex
+from nti.zope_catalog.interfaces import IFieldIndex
+from nti.zope_catalog.interfaces import IValueIndex
+from nti.zope_catalog.interfaces import IKeywordIndex
+from nti.zope_catalog.interfaces import IIntegerValueIndex
 
 def convertQuery(query):
 	# Convert zope.index style two-tuple (min/max)
@@ -91,11 +93,11 @@ class NormalizingFieldIndex(zope.index.field.FieldIndex,
 
 	def ids(self):
 		return self._rev_index.keys()
-	
+
 	def doc_value(self, doc_id):
 		result = self._rev_index.get(doc_id)
 		return result
-	
+
 	def zip(self, doc_ids=()):
 		for doc_id in doc_ids or ():
 			value = self._rev_index.get(doc_id)
@@ -124,7 +126,7 @@ class CaseInsensitiveAttributeFieldIndex(AttributeIndex,
 class ValueIndex(_ZCApplyMixin,
 				 _ZCAbstractIndexMixin,
 				 zc.catalog.index.ValueIndex):
-	
+
 	def zip(self, doc_ids=()):
 		for doc_id in doc_ids or ():
 			value = self.documents_to_values.get(doc_id)
@@ -262,7 +264,7 @@ class NormalizingKeywordIndex(zope.index.keyword.CaseInsensitiveKeywordIndex,
 			except KeyError:
 				pass
 	removeWords = remove_words
-	
+
 	def zip(self, doc_ids=()):
 		for doc_id in doc_ids or ():
 			value = self._rev_index.get(doc_id)

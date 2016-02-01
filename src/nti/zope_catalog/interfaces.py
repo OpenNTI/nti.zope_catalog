@@ -16,7 +16,9 @@ from zope import interface
 from zope.catalog.interfaces import ICatalog
 from zope.catalog.interfaces import INoAutoIndex
 from zope.catalog.interfaces import INoAutoReindex
+
 from zope.catalog.field import IFieldIndex as IZVFieldIndex
+
 from zope.catalog.keyword import IKeywordIndex as IZCKeywordIndex
 
 from zc.catalog.interfaces import ISetIndex as IZCSetIndex

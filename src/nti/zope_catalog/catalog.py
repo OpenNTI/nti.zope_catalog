@@ -17,7 +17,7 @@ from ZODB.interfaces import IBroken
 
 from ZODB.POSException import POSError
 
-from .interfaces import INoAutoIndex
+from nti.zope_catalog.interfaces import INoAutoIndex
 
 def is_broken(obj, uid=None):
 	result = False
