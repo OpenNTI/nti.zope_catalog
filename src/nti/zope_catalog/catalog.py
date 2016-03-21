@@ -19,7 +19,7 @@ from ZODB.POSException import POSError
 
 from nti.zope_catalog.interfaces import INoAutoIndex
 
-def is_broken(obj, uid=None):
+def isBroken(obj, uid=None):
 	result = False
 	try:
 		if obj is None:
@@ -34,7 +34,7 @@ def is_broken(obj, uid=None):
 		logger.error("Ignoring broken object %s, %s", type(obj), uid)
 		result = True
 	return result
-isBroken = is_broken
+is_broken = isBroken
 
 class ResultSet(object):
 	"""
@@ -52,7 +52,7 @@ class ResultSet(object):
 	def getObject(self, uid):
 		if self.ignore_invalid:
 			obj = self.uidutil.queryObject(uid)
-			if is_broken(obj, uid):
+			if isBroken(obj, uid):
 				obj = None
 		else:
 			obj = self.uidutil.queryObject(uid)
