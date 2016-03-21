@@ -117,7 +117,7 @@ class ExtentFilteredSet(zope.index.topic.filter.FilteredSetBase):
 		# The super implementation calls clear() to establish `_ids`
 
 	def ids(self):
-		return list(self._ids) if self._ids is not None else ()
+		return tuple(self._ids) if self._ids is not None else ()
 
 	def clear(self):
 		# Note that we ignore the super implementation.

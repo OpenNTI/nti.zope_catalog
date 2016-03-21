@@ -18,8 +18,9 @@ from pytz import UTC
 
 from zope import interface
 
-from zc.catalog.interfaces import INormalizer
 from zc.catalog.index import DateTimeNormalizer
+
+from zc.catalog.interfaces import INormalizer
 
 from persistent import Persistent
 
