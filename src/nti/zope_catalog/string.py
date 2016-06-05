@@ -15,7 +15,7 @@ from zope import interface
 
 from zc.catalog.interfaces import INormalizer
 
-from nti.common.string import safestr
+from nti.common.string import to_unicode
 
 from nti.zope_catalog.datetime import _AbstractNormalizerMixin
 
@@ -28,7 +28,5 @@ class StringTokenNormalizer(_AbstractNormalizerMixin):
 	"""
 
 	def value(self, value):
-		if value is None:
-			return
-		value = safestr(value)
-		return value.lower().strip()
+		value = to_unicode(value) if value is not None else None
+		return value.lower().strip() if value is not None else None
