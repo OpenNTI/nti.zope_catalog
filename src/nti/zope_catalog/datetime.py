@@ -24,10 +24,10 @@ from zc.catalog.interfaces import INormalizer
 
 from persistent import Persistent
 
-from nti.common.time import time_to_64bit_int
-from nti.common.time import bit64_int_to_time
-
 from nti.common.property import CachedProperty
+
+from nti.zodb.containers import bit64_int_to_time
+from nti.zodb.containers import time_to_64bit_int
 
 class _AbstractNormalizerMixin(object):
 

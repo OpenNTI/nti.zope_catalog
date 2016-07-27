@@ -59,7 +59,8 @@ setup(
 		'zope.index',
 		'zope.interface',
 		'zope.security',
-		'nti.common'
+		'nti.common',
+		'nti.zodb'
 	],
 	extras_require={
 		'test': TESTS_REQUIRE,
