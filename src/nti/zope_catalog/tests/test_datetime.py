@@ -16,7 +16,7 @@ import time
 import datetime
 import unittest
 
-from nti.common.time import time_to_64bit_int
+from nti.zodb.containers import time_to_64bit_int
 
 from nti.zope_catalog.index import IntegerValueIndex
 from nti.zope_catalog.index import NormalizationWrapper
