@@ -25,7 +25,7 @@ setup(
 	version=VERSION,
 	author='Jason Madden',
 	author_email='jason@nextthought.com',
-	description="NTI ZODB",
+	description="NTI ZODB Catalog",
 	long_description=codecs.open('README.rst', encoding='utf-8').read(),
 	license='Proprietary',
 	keywords='ZODB Catalog',
@@ -60,6 +60,7 @@ setup(
 		'zope.interface',
 		'zope.security',
 		'nti.common',
+		'nti.property',
 		'nti.zodb'
 	],
 	extras_require={

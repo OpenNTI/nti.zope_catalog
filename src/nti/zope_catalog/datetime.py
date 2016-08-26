@@ -24,7 +24,7 @@ from zc.catalog.interfaces import INormalizer
 
 from persistent import Persistent
 
-from nti.common.property import CachedProperty
+from nti.property.property import CachedProperty
 
 from nti.zodb.containers import bit64_int_to_time
 from nti.zodb.containers import time_to_64bit_int

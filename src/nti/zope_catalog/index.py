@@ -30,14 +30,17 @@ import zc.catalog.catalogindex
 
 import BTrees
 
-from nti.common.property import alias
-from nti.common.iterables import is_nonstr_iter
+from nti.property.property import alias
 
 from nti.zope_catalog.interfaces import ISetIndex
 from nti.zope_catalog.interfaces import IFieldIndex
 from nti.zope_catalog.interfaces import IValueIndex
 from nti.zope_catalog.interfaces import IKeywordIndex
 from nti.zope_catalog.interfaces import IIntegerValueIndex
+
+def is_nonstr_iter(x):
+	return 		not isinstance(x, six.string_types) \
+			and isinstance(x, collections.Iterable)
 
 def convertQuery(query):
 	# Convert zope.index style two-tuple (min/max)
