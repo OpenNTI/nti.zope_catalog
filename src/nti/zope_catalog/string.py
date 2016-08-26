@@ -15,9 +15,16 @@ from zope import interface
 
 from zc.catalog.interfaces import INormalizer
 
-from nti.common.string import to_unicode
-
 from nti.zope_catalog.datetime import _AbstractNormalizerMixin
+
+try:
+	_unicode = unicode
+except NameError: # python 3
+	_unicode = lambda s: s
+
+def to_unicode(s, encoding='utf-8', err='strict'):
+	s = s.decode(encoding, err) if isinstance(s, bytes) else s
+	return _unicode(s) if s is not None else None
 
 @interface.implementer(INormalizer)
 class StringTokenNormalizer(_AbstractNormalizerMixin):

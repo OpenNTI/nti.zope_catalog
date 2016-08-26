@@ -59,7 +59,6 @@ setup(
 		'zope.index',
 		'zope.interface',
 		'zope.security',
-		'nti.common',
 		'nti.property',
 		'nti.zodb'
 	],
