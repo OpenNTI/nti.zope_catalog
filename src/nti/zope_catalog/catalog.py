@@ -24,7 +24,7 @@ def isBroken(obj, uid=None):
 	try:
 		if obj is None:
 			msg = uid if uid is not None else u''
-			logger.warn("Ignoring NULL object %s", msg)
+			logger.debug("Ignoring NULL object %s", msg)
 			result = (uid is not None)
 		else:
 			if hasattr(obj, '_p_activate'):
