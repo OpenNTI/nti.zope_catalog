@@ -7,6 +7,7 @@ Catalog extensions.
 """
 
 from __future__ import print_function, unicode_literals, absolute_import, division
+from Finder.Finder_items import items
 __docformat__ = "restructuredtext en"
 
 logger = __import__('logging').getLogger(__name__)
@@ -60,19 +61,20 @@ class ResultSet(object):
 			obj = self.uidutil.queryObject(uid)
 		return obj
 
-	def iter_pairs(self):
+	def items(self):
 		for uid in self.uids:
 			obj = self.getObject(uid)
 			if obj is not None:
 				yield uid, obj
+	iter_pairs = items
 
 	def __iter__(self):
-		for _, obj in self.iter_pairs():
+		for _, obj in self.items():
 			yield obj
 
 	def count(self):
 		result = 0
-		for _, _ in self.iter_pairs():
+		for _, _ in self.items():
 			result += 1
 		return result
 
