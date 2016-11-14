@@ -20,7 +20,7 @@ from zope.catalog.attribute import AttributeIndex
 
 from zope.catalog.interfaces import ICatalogIndex
 
-import zope.container.contained
+from zope.container.contained import Contained
 
 import zope.index.field
 import zope.index.keyword
@@ -75,7 +75,7 @@ class _ZCAbstractIndexMixin(object):
 
 @interface.implementer(IFieldIndex)
 class NormalizingFieldIndex(zope.index.field.FieldIndex,
-							zope.container.contained.Contained):
+							Contained):
 	"""
 	A field index that normalizes before indexing or searching.
 
@@ -184,7 +184,7 @@ class IntegerAttributeIndex(IntegerValueIndex,
 
 @interface.implementer(IKeywordIndex)
 class NormalizingKeywordIndex(zope.index.keyword.CaseInsensitiveKeywordIndex,
-							  zope.container.contained.Contained):
+							  Contained):
 
 	family = BTrees.family64
 

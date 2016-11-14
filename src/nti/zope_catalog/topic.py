@@ -17,17 +17,17 @@ from zope import interface
 
 from zope.catalog.interfaces import ICatalogIndex
 
-import zope.container.contained
+from zope.container.contained import Contained
 
-import zope.index.topic.filter
+from zope.index.topic import TopicIndex
+from zope.index.topic.filter import FilteredSetBase
 
-import zc.catalog.extentcatalog
+from zc.catalog.extentcatalog import FilterExtent
 
 import BTrees
 
 @interface.implementer(ICatalogIndex)
-class TopicIndex(zope.index.topic.TopicIndex,
-				 zope.container.contained.Contained):
+class TopicIndex(TopicIndex, Contained):
 	"""
 	A topic index that implements IContained and ICatalogIndex for use with
 	catalog indexes.
@@ -78,7 +78,7 @@ class TopicIndex(zope.index.topic.TopicIndex,
 				query = {'operator': 'and', 'query': query['all_of']}
 		return super(TopicIndex, self).apply(query)
 
-class ExtentFilteredSet(zope.index.topic.filter.FilteredSetBase):
+class ExtentFilteredSet(FilteredSetBase):
 	"""
 	A filtered set that uses an :class:`zc.catalog.interfaces.IExtent`
 	to store document IDs; this can make for faster, easier querying
@@ -121,8 +121,7 @@ class ExtentFilteredSet(zope.index.topic.filter.FilteredSetBase):
 
 	def clear(self):
 		# Note that we ignore the super implementation.
-		self._extent = zc.catalog.extentcatalog.FilterExtent(self.getExpression(),
-															 family=self.family)
+		self._extent = FilterExtent(self.getExpression(), family=self.family)
 		self._ids = self._extent.set
 
 	def index_doc(self, docid, context):
