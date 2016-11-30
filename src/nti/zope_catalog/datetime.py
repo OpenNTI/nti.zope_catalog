@@ -85,9 +85,12 @@ class TimestampNormalizer(Persistent, _AbstractNormalizerMixin):
 		return DateTimeNormalizer(self.resolution)
 
 	def value(self, value):
-		dt = datetime.fromtimestamp(value)
-		dt = dt.replace(tzinfo=UTC)
-		dt = self._datetime_normalizer.value(dt)
+		if isinstance(value, datetime):
+			dt = value
+		else:
+			dt = datetime.fromtimestamp(value)
+			dt = dt.replace(tzinfo=UTC)
+			dt = self._datetime_normalizer.value(dt)
 		return time.mktime(dt.timetuple())
 
 	# The provided date-time normalizer supports taking
