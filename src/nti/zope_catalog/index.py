@@ -94,12 +94,11 @@ class NormalizingFieldIndex(zope.index.field.FieldIndex,
         raise NotImplementedError()
 
     def index_doc(self, docid, value):
-        super(NormalizingFieldIndex,self).index_doc(docid,
-                                                    self.normalize(value))
+        super(NormalizingFieldIndex,self).index_doc(docid, self.normalize(value))
 
     def apply(self, query):
-        return super(NormalizingFieldIndex, self).apply(
-                            tuple(self.normalize(x) for x in query))
+        query = tuple(self.normalize(x) for x in query)
+        return super(NormalizingFieldIndex, self).apply(query)
 
     def ids(self):
         return self._rev_index.keys()
@@ -242,12 +241,10 @@ class NormalizingKeywordIndex(zope.index.keyword.CaseInsensitiveKeywordIndex,
         if query_type is None:
             res = self.family.IF.Set()
         elif query_type in ('or', 'and'):
-            res = super(NormalizingKeywordIndex, self).search(query,
-                                                              operator=query_type)
+            res = super(NormalizingKeywordIndex, self).search(query, operator=query_type)
         elif query_type in ('between'):
             query = list(self._fwd_index.iterkeys(query[0], query[1]))
-            res = super(NormalizingKeywordIndex, self).search(query,
-                                                              operator='or')
+            res = super(NormalizingKeywordIndex, self).search(query, operator='or')
         elif query_type == 'none':
             assert zc.catalog.interfaces.IExtent.providedBy(query)
             res = query - self.family.IF.Set(self.ids())
