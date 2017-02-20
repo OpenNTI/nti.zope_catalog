@@ -14,27 +14,33 @@ from hamcrest import assert_that
 import unittest
 
 from nti.zope_catalog.index import NormalizationWrapper
+
 from nti.zope_catalog.string import StringTokenNormalizer
 
+from nti.zope_catalog.tests import SharedConfiguringTestLayer
+
+
 class TestStringNormalizer(unittest.TestCase):
-	
-	field = 'ABC'
-	
-	def test_value(self):
-		assert_that( StringTokenNormalizer().value(b'ABC'),
-					 is_('abc'))
 
-	def test_index_search(self):
-		from zc.catalog.index import ValueIndex
+    layer = SharedConfiguringTestLayer
 
-		index = NormalizationWrapper('field',
-									 index=ValueIndex(),
-									 normalizer=StringTokenNormalizer())
+    field = 'ABC'
 
-		index.index_doc(1, self)
+    def test_value(self):
+        assert_that(StringTokenNormalizer().value(b'ABC'),
+                    is_('abc'))
 
-		assert_that( index.values(),
-					 contains('abc'))
+    def test_index_search(self):
+        from zc.catalog.index import ValueIndex
 
-		assert_that( index.apply( ('ABC', 'ABC')),
-					 contains(1))
+        index = NormalizationWrapper('field',
+                                     index=ValueIndex(),
+                                     normalizer=StringTokenNormalizer())
+
+        index.index_doc(1, self)
+
+        assert_that(index.values(),
+                    contains('abc'))
+
+        assert_that(index.apply(('ABC', 'ABC')),
+                    contains(1))

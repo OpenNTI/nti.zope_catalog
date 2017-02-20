@@ -18,100 +18,104 @@ import unittest
 
 from nti.zodb.containers import time_to_64bit_int
 
-from nti.zope_catalog.index import IntegerValueIndex
-from nti.zope_catalog.index import NormalizationWrapper
 from nti.zope_catalog.datetime import TimestampNormalizer
 from nti.zope_catalog.datetime import TimestampTo64BitIntNormalizer
 from nti.zope_catalog.datetime import TimestampToNormalized64BitIntNormalizer
 
+from nti.zope_catalog.index import IntegerValueIndex
+from nti.zope_catalog.index import NormalizationWrapper
+
+from nti.zope_catalog.tests import SharedConfiguringTestLayer
+
+
 class TestNormalizers(unittest.TestCase):
-	
-	field = 1
-	
-	def test_int_normalizer(self):
-		assert_that( TimestampTo64BitIntNormalizer().value(123456.78),
-					 is_(4683220298531686318) )
 
-	def test_timestamp_normalizer(self):
-		orig = datetime.datetime(2014, 2, 24, 12, 30, 7, 650261)
-		orig = time.mktime(orig.timetuple())
+    layer = SharedConfiguringTestLayer
 
-		minute_normalized = datetime.datetime(2014, 2, 24, 12, 30)
-		minute_normalized = time.mktime(minute_normalized.timetuple())
+    field = 1
 
-		hour_normalized = datetime.datetime(2014, 2, 24, 12)
-		hour_normalized = time.mktime(hour_normalized.timetuple())
+    def test_int_normalizer(self):
+        assert_that(TimestampTo64BitIntNormalizer().value(123456.78),
+                    is_(4683220298531686318))
 
-		normalizer = TimestampNormalizer()
+    def test_timestamp_normalizer(self):
+        orig = datetime.datetime(2014, 2, 24, 12, 30, 7, 650261)
+        orig = time.mktime(orig.timetuple())
 
-		# default to minute
-		assert_that( normalizer.value(orig), is_(minute_normalized))
+        minute_normalized = datetime.datetime(2014, 2, 24, 12, 30)
+        minute_normalized = time.mktime(minute_normalized.timetuple())
 
-		# change resolution
-		normalizer.resolution = normalizer.RES_HOUR
-		assert_that( normalizer.value(orig), is_(hour_normalized) )
+        hour_normalized = datetime.datetime(2014, 2, 24, 12)
+        hour_normalized = time.mktime(hour_normalized.timetuple())
 
+        normalizer = TimestampNormalizer()
 
-	def test_combined_normalizer(self):
-		orig = datetime.datetime(2014, 2, 24, 12, 30, 7, 650261)
-		orig = time.mktime(orig.timetuple())
+        # default to minute
+        assert_that(normalizer.value(orig), is_(minute_normalized))
 
-		minute_normalized = datetime.datetime(2014, 2, 24, 12, 30)
-		minute_normalized = time.mktime(minute_normalized.timetuple())
-		minute_normalized = time_to_64bit_int(minute_normalized)
+        # change resolution
+        normalizer.resolution = normalizer.RES_HOUR
+        assert_that(normalizer.value(orig), is_(hour_normalized))
 
-		hour_normalized = datetime.datetime(2014, 2, 24, 12)
-		hour_normalized = time.mktime(hour_normalized.timetuple())
-		hour_normalized = time_to_64bit_int(hour_normalized)
+    def test_combined_normalizer(self):
+        orig = datetime.datetime(2014, 2, 24, 12, 30, 7, 650261)
+        orig = time.mktime(orig.timetuple())
 
-		normalizer = TimestampToNormalized64BitIntNormalizer()
+        minute_normalized = datetime.datetime(2014, 2, 24, 12, 30)
+        minute_normalized = time.mktime(minute_normalized.timetuple())
+        minute_normalized = time_to_64bit_int(minute_normalized)
 
-		# default to minute
-		assert_that( normalizer.value(orig), is_(minute_normalized))
+        hour_normalized = datetime.datetime(2014, 2, 24, 12)
+        hour_normalized = time.mktime(hour_normalized.timetuple())
+        hour_normalized = time_to_64bit_int(hour_normalized)
 
-		# change resolution
-		normalizer.resolution = TimestampNormalizer.RES_HOUR
-		assert_that( normalizer.value(orig), is_(hour_normalized) )
+        normalizer = TimestampToNormalized64BitIntNormalizer()
 
-	def test_combined_normalizer_query(self):
-		orig = datetime.datetime(2014, 2, 24, 12, 30, 7, 650261)
-		orig = time.mktime(orig.timetuple())
+        # default to minute
+        assert_that(normalizer.value(orig), is_(minute_normalized))
 
-		minute_normalized = datetime.datetime(2014, 2, 24, 12, 30)
-		minute_normalized_time = time.mktime(minute_normalized.timetuple())
-		minute_normalized = time_to_64bit_int(minute_normalized_time)
+        # change resolution
+        normalizer.resolution = TimestampNormalizer.RES_HOUR
+        assert_that(normalizer.value(orig), is_(hour_normalized))
 
-		hour_normalized = datetime.datetime(2014, 2, 24, 12)
-		hour_normalized_time = time.mktime(hour_normalized.timetuple())
-		hour_normalized = time_to_64bit_int(hour_normalized_time)
+    def test_combined_normalizer_query(self):
+        orig = datetime.datetime(2014, 2, 24, 12, 30, 7, 650261)
+        orig = time.mktime(orig.timetuple())
 
-		normalizer = TimestampToNormalized64BitIntNormalizer()
+        minute_normalized = datetime.datetime(2014, 2, 24, 12, 30)
+        minute_normalized_time = time.mktime(minute_normalized.timetuple())
+        minute_normalized = time_to_64bit_int(minute_normalized_time)
 
-		index = NormalizationWrapper('field', index=IntegerValueIndex(),
-									 normalizer=normalizer)
+        hour_normalized = datetime.datetime(2014, 2, 24, 12)
+        hour_normalized_time = time.mktime(hour_normalized.timetuple())
+        hour_normalized = time_to_64bit_int(hour_normalized_time)
 
-		self.field = orig
+        normalizer = TimestampToNormalized64BitIntNormalizer()
 
-		index.index_doc(1, self)
+        index = NormalizationWrapper('field', index=IntegerValueIndex(),
+                                     normalizer=normalizer)
 
-		# Exact-match query for the original value
-		assert_that( index.apply((orig, orig)),
-					 contains(1))
+        self.field = orig
 
-		# exact-match query for the normalized value
-		assert_that( index.apply((minute_normalized_time,minute_normalized_time)),
-					 contains(1))
+        index.index_doc(1, self)
 
-		# range query, beginning time only
-		assert_that( index.apply({'between': (hour_normalized_time,)}),
-					 contains(1))
+        # Exact-match query for the original value
+        assert_that(index.apply((orig, orig)),
+                    contains(1))
 
+        # exact-match query for the normalized value
+        assert_that(index.apply((minute_normalized_time, minute_normalized_time)),
+                    contains(1))
 
-		self.field = 1234
-		index.index_doc(2, self)
+        # range query, beginning time only
+        assert_that(index.apply({'between': (hour_normalized_time,)}),
+                    contains(1))
 
-		assert_that( index.apply( {'any': None} ),
-					 contains_inanyorder(1, 2))
+        self.field = 1234
+        index.index_doc(2, self)
 
-		assert_that( list(index.sort( (2,1) )),
-					 contains(2, 1))
+        assert_that(index.apply({'any': None}),
+                    contains_inanyorder(1, 2))
+
+        assert_that(list(index.sort((2, 1))),
+                    contains(2, 1))

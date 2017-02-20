@@ -24,64 +24,72 @@ from zope.catalog.keyword import IKeywordIndex as IZCKeywordIndex
 from zc.catalog.interfaces import ISetIndex as IZCSetIndex
 from zc.catalog.interfaces import IValueIndex as IZCValueIndex
 
+
 class IZipMixin(interface.Interface):
 
-	def zip(doc_ids=()):
-		"""
-		return an iterator of doc_id, value pairs
-		"""
+    def zip(doc_ids=()):
+        """
+        return an iterator of doc_id, value pairs
+        """
+
 
 class INoAutoIndexEver(INoAutoIndex, INoAutoReindex):
-	"""
-	Marker interface for objects that should not automatically
-	be added to catalogs when created or modified events
-	fire.
-	"""
+    """
+    Marker interface for objects that should not automatically
+    be added to catalogs when created or modified events
+    fire.
+    """
+
 
 class IKeywordIndex(IZCKeywordIndex, IZipMixin):
 
-	def ids():
-		"""
-		return the docids in this Index
-		"""
+    def ids():
+        """
+        return the docids in this Index
+        """
 
-	def words():
-		"""
-		return the words in this Index
-		"""
+    def words():
+        """
+        return the words in this Index
+        """
 
-	def remove_words(*words):
-		"""
-		remove the specified sequence of words
-		"""
+    def remove_words(*words):
+        """
+        remove the specified sequence of words
+        """
+
 
 class IFieldIndex(IZVFieldIndex, IZipMixin):
 
-	def doc_value(doc_id):
-		"""
-		return the value associated with the specified doc id
-		"""
+    def doc_value(doc_id):
+        """
+        return the value associated with the specified doc id
+        """
+
 
 class IValueIndex(IZCValueIndex, IZipMixin):
-	pass
+    pass
+
 
 class ISetIndex(IZCSetIndex, IZipMixin):
-	pass
+    pass
+
 
 class IIntegerValueIndex(IZCValueIndex, IZipMixin):
-	pass
+    pass
+
 
 class IMetadataCatalog(ICatalog):
-	"""
-	The nti metadata catalog.
-	"""
+    """
+    The nti metadata catalog.
+    """
 
-	def index_doc(self, iid, ob):
-		"""
-		This may or may not update our underlying index.
-		"""
+    def index_doc(self, iid, ob):
+        """
+        This may or may not update our underlying index.
+        """
 
-	def force_index_doc(self, iid, ob):
-		"""
-		Force the underlying index to update.
-		"""
+    def force_index_doc(self, iid, ob):
+        """
+        Force the underlying index to update.
+        """
