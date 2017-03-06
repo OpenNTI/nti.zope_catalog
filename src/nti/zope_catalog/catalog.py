@@ -17,6 +17,8 @@ from ZODB.interfaces import IBroken
 
 from ZODB.POSException import POSError
 
+import BTrees
+
 from nti.zope_catalog.interfaces import INoAutoIndex
 
 
@@ -98,6 +100,8 @@ class Catalog(_ZCatalog):
       :class:`.IObjectAdded` event handler) but updating all indexes
       does not since it is usually called by hand.
     """
+
+    family = BTrees.family64
 
     def _visitSublocations(self):
         for uid, obj in super(Catalog, self)._visitSublocations():
