@@ -40,7 +40,7 @@ from nti.zope_catalog.interfaces import IIntegerValueIndex
 
 
 def is_nonstr_iter(x):
-    return  not isinstance(x, six.string_types) \
+    return not isinstance(x, six.string_types) \
         and isinstance(x, collections.Iterable)
 
 
@@ -94,7 +94,8 @@ class NormalizingFieldIndex(zope.index.field.FieldIndex,
         raise NotImplementedError()
 
     def index_doc(self, docid, value):
-        super(NormalizingFieldIndex,self).index_doc(docid, self.normalize(value))
+        super(NormalizingFieldIndex, self).index_doc(
+            docid, self.normalize(value))
 
     def apply(self, query):
         query = tuple(self.normalize(x) for x in query)
@@ -142,6 +143,20 @@ class ValueIndex(_ZCApplyMixin,
         for doc_id in doc_ids or ():
             value = self.documents_to_values.get(doc_id)
             yield doc_id, value
+
+    def unindex_doc(self, doc_id):
+        documents_to_values = self.documents_to_values
+        value = documents_to_values.get(doc_id)
+        if value is not None:
+            values_to_documents = self.values_to_documents
+            self.documentCount.change(-1)
+            del documents_to_values[doc_id]
+            docs = values_to_documents.get(value)
+            if docs:
+                docs.remove(doc_id)
+            if not docs:
+                del values_to_documents[value]
+                self.wordCount.change(-1)
 
 
 class AttributeValueIndex(ValueIndex,
@@ -241,10 +256,12 @@ class NormalizingKeywordIndex(zope.index.keyword.CaseInsensitiveKeywordIndex,
         if query_type is None:
             res = self.family.IF.Set()
         elif query_type in ('or', 'and'):
-            res = super(NormalizingKeywordIndex, self).search(query, operator=query_type)
+            res = super(NormalizingKeywordIndex, self).search(
+                query, operator=query_type)
         elif query_type in ('between'):
             query = list(self._fwd_index.iterkeys(query[0], query[1]))
-            res = super(NormalizingKeywordIndex, self).search(query, operator='or')
+            res = super(NormalizingKeywordIndex, self).search(
+                query, operator='or')
         elif query_type == 'none':
             assert zc.catalog.interfaces.IExtent.providedBy(query)
             res = query - self.family.IF.Set(self.ids())
