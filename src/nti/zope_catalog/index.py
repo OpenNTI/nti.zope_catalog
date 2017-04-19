@@ -155,8 +155,11 @@ class ValueIndex(_ZCApplyMixin,
             if docs:
                 docs.remove(doc_id)
             if not docs:
-                del values_to_documents[value]
-                self.wordCount.change(-1)
+                if value in values_to_documents:
+                    del values_to_documents[value]
+                    self.wordCount.change(-1)
+                else:
+                    self.wordCount.set(len(values_to_documents))
 
 
 class AttributeValueIndex(ValueIndex,
