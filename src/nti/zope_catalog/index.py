@@ -144,23 +144,6 @@ class ValueIndex(_ZCApplyMixin,
             value = self.documents_to_values.get(doc_id)
             yield doc_id, value
 
-    def unindex_doc(self, doc_id):
-        documents_to_values = self.documents_to_values
-        value = documents_to_values.get(doc_id)
-        if value is not None:
-            values_to_documents = self.values_to_documents
-            self.documentCount.change(-1)
-            del documents_to_values[doc_id]
-            docs = values_to_documents.get(value)
-            if docs:
-                docs.remove(doc_id)
-            if not docs:
-                if value in values_to_documents:
-                    del values_to_documents[value]
-                    self.wordCount.change(-1)
-                else:
-                    self.wordCount.set(len(values_to_documents))
-
 
 class AttributeValueIndex(ValueIndex,
                           zc.catalog.catalogindex.ValueIndex):
