@@ -13,33 +13,13 @@ logger = __import__('logging').getLogger(__name__)
 
 from zope.catalog.catalog import Catalog as _ZCatalog
 
-from ZODB.interfaces import IBroken
-
 from ZODB.POSException import POSError
 
 import BTrees
 
+from nti.zodb import isBroken
+
 from nti.zope_catalog.interfaces import INoAutoIndex
-
-
-def isBroken(obj, uid=None):
-    result = False
-    try:
-        if obj is None:
-            msg = uid if uid is not None else u''
-            logger.debug("Ignoring NULL object %s", msg)
-            result = (uid is not None)
-        else:
-            try:
-                obj._p_activate()
-            except (TypeError, AttributeError):
-                pass
-            result = IBroken.providedBy(obj)
-    except (POSError, TypeError):
-        logger.error("Ignoring broken object %s, %s", type(obj), uid)
-        result = True
-    return result
-is_broken = isBroken
 
 
 class ResultSet(object):

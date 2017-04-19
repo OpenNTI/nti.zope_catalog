@@ -20,12 +20,13 @@ from nti.zope_catalog.datetime import _AbstractNormalizerMixin
 try:
     _unicode = unicode
 except NameError:  # python 3
-    _unicode = lambda s: s
+    def _unicode(s): return str(s)
 
 
-def to_unicode(s, encoding='utf-8', err='strict'):
+def unicode_(s, encoding='utf-8', err='strict'):
     s = s.decode(encoding, err) if isinstance(s, bytes) else s
     return _unicode(s) if s is not None else None
+text_ = to_unicode = unicode_
 
 
 @interface.implementer(INormalizer)
@@ -37,5 +38,5 @@ class StringTokenNormalizer(_AbstractNormalizerMixin):
     """
 
     def value(self, value):
-        value = to_unicode(value) if value is not None else None
+        value = unicode_(value) if value is not None else None
         return value.lower().strip() if value is not None else None
