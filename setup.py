@@ -54,7 +54,7 @@ setup(
         'zope.container',
         'zope.index',
         'zope.interface',
-        'zope.security',
+        'zope.location',
         'nti.property',
         'nti.zodb'
     ],
