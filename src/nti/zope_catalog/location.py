@@ -21,7 +21,7 @@ def lineage(resource):
             resource = None
 
 
-def find_interface(resource, class_or_interface):
+def find_interface(resource, class_or_interface, *args, **kwargs):
     if IInterface.providedBy(class_or_interface):
         test = class_or_interface.providedBy
     else:
