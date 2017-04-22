@@ -9,26 +9,25 @@ entry_points = {
 }
 
 TESTS_REQUIRE = [
-    'fudge',
-    'nose',
-    'nose-timer',
-    'nose-pudb',
-    'nose-progressive',
-    'nose2[coverage_plugin]',
-    'pyhamcrest',
-    'zope.testing',
-    'nti.nose_traceback_info'
+    'nti.testing',
+    'zope.testrunner',
 ]
+
+
+def _read(fname):
+    with codecs.open(fname, encoding='utf-8') as f:
+        return f.read()
+
 
 setup(
     name='nti.zope_catalog',
     version=VERSION,
     author='Jason Madden',
     author_email='jason@nextthought.com',
-    description="NTI ZODB Catalog",
-    long_description=codecs.open('README.rst', encoding='utf-8').read(),
+    description="NTI Zope Catalog",
+    long_description=(_read('README.rst') + '\n\n' + _read('CHANGES.rst')),
     license='Proprietary',
-    keywords='ZODB Catalog',
+    keywords='Zope Catalog',
     classifiers=[
         'Intended Audience :: Developers',
         'Natural Language :: English',
@@ -62,5 +61,6 @@ setup(
     extras_require={
         'test': TESTS_REQUIRE,
     },
-    entry_points=entry_points
+    entry_points=entry_points,
+    test_suite="nti.zodb.tests",
 )

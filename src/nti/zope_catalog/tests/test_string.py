@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from __future__ import print_function, unicode_literals, absolute_import, division
+from __future__ import print_function, absolute_import, division
 __docformat__ = "restructuredtext en"
 
 # disable: accessing protected members, too many methods
@@ -28,6 +28,8 @@ class TestStringNormalizer(unittest.TestCase):
 
     def test_value(self):
         assert_that(StringTokenNormalizer().value(b'ABC'),
+                    is_('abc'))
+        assert_that(StringTokenNormalizer().value(u'ABC'),
                     is_('abc'))
 
     def test_index_search(self):
