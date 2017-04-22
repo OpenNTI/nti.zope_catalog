@@ -1,8 +1,6 @@
 import codecs
 from setuptools import setup, find_packages
 
-VERSION = '0.0.0'
-
 entry_points = {
     'console_scripts': [
     ],
@@ -21,7 +19,7 @@ def _read(fname):
 
 setup(
     name='nti.zope_catalog',
-    version=VERSION,
+    version=_read('version.txt').strip(),
     author='Jason Madden',
     author_email='jason@nextthought.com',
     description="NTI Zope Catalog",
@@ -44,6 +42,8 @@ setup(
     install_requires=[
         'setuptools',
         'BTrees',
+        'nti.property',
+        'nti.zodb',
         'persistent',
         'pytz',
         'six',
@@ -55,8 +55,6 @@ setup(
         'zope.index',
         'zope.interface',
         'zope.location',
-        'nti.property',
-        'nti.zodb'
     ],
     extras_require={
         'test': TESTS_REQUIRE,
