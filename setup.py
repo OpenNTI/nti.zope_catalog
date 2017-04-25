@@ -24,7 +24,7 @@ setup(
     author_email='jason@nextthought.com',
     description="NTI Zope Catalog",
     long_description=(_read('README.rst') + '\n\n' + _read('CHANGES.rst')),
-    license='Proprietary',
+    license='Apache',
     keywords='Zope Catalog',
     classifiers=[
         'Intended Audience :: Developers',
