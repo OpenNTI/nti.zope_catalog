@@ -35,8 +35,10 @@ setup(
         'Programming Language :: Python :: Implementation :: CPython'
         'Programming Language :: Python :: Implementation :: PyPy'
     ],
+    zip_safe=True,
     packages=find_packages('src'),
     package_dir={'': 'src'},
+    include_package_data=True,
     namespace_packages=['nti'],
     tests_require=TESTS_REQUIRE,
     install_requires=[
@@ -49,6 +51,7 @@ setup(
         'six',
         'zc.catalog',
         'ZODB',
+        'zope.cachedescriptors',
         'zope.catalog',
         'zope.component',
         'zope.container',
@@ -60,5 +63,5 @@ setup(
         'test': TESTS_REQUIRE,
     },
     entry_points=entry_points,
-    test_suite="nti.zodb.tests",
+    test_suite="nti.zope_catalog.tests",
 )
