@@ -18,13 +18,13 @@ from pytz import UTC
 
 from zope import interface
 
+from zope.cachedescriptors.property import CachedProperty
+
 from zc.catalog.index import DateTimeNormalizer
 
 from zc.catalog.interfaces import INormalizer
 
 from persistent import Persistent
-
-from nti.property.property import CachedProperty
 
 from nti.zodb.containers import bit64_int_to_time
 from nti.zodb.containers import time_to_64bit_int
