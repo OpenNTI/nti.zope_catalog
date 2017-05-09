@@ -126,5 +126,5 @@ class TimestampToNormalized64BitIntNormalizer(Persistent,
         return TimestampTo64BitIntNormalizer()
 
     def value(self, value):
-        return self._int_normalizer.value(
-            self._timestamp_normalizer.value(value))
+        norm = self._timestamp_normalizer.value(value)
+        return self._int_normalizer.value(norm)
