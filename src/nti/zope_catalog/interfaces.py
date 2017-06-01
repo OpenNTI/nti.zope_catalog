@@ -17,9 +17,11 @@ from zope.catalog.interfaces import ICatalog
 from zope.catalog.interfaces import INoAutoIndex
 from zope.catalog.interfaces import INoAutoReindex
 
-from zope.catalog.field import IFieldIndex as IZVFieldIndex
+from zope.catalog.field import IFieldIndex as IZCVFieldIndex
 
 from zope.catalog.keyword import IKeywordIndex as IZCKeywordIndex
+
+from zope.catalog.text import ITextIndex as IZCTextIndex
 
 from zc.catalog.interfaces import ISetIndex as IZCSetIndex
 from zc.catalog.interfaces import IValueIndex as IZCValueIndex
@@ -59,7 +61,7 @@ class IKeywordIndex(IZCKeywordIndex, IZipMixin):
         """
 
 
-class IFieldIndex(IZVFieldIndex, IZipMixin):
+class IFieldIndex(IZCVFieldIndex, IZipMixin):
 
     def doc_value(doc_id):
         """
@@ -76,6 +78,10 @@ class ISetIndex(IZCSetIndex, IZipMixin):
 
 
 class IIntegerValueIndex(IZCValueIndex, IZipMixin):
+    pass
+
+
+class ITextIndex(IZCTextIndex):
     pass
 
 

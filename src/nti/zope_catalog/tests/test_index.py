@@ -20,6 +20,9 @@ import unittest
 
 import BTrees
 
+from nti.zope_catalog.index import stemmer_lexicon
+
+from nti.zope_catalog.index import AttributeTextIndex
 from nti.zope_catalog.index import IntegerAttributeIndex
 from nti.zope_catalog.index import NormalizingKeywordIndex
 from nti.zope_catalog.index import CaseInsensitiveAttributeFieldIndex
@@ -132,7 +135,7 @@ class TestNormalizingKeywordIndex(unittest.TestCase):
 
 
 class TestCaseInsensitiveAttributeIndex(unittest.TestCase):
-
+    
     field = 'VALUE'
 
     def setUp(self):
@@ -194,3 +197,25 @@ class TestIntegerAttributeIndex(unittest.TestCase):
 
         assert_that(index.sort((3, 2, 1), reverse=False),
                     contains(1, 2, 3))
+
+
+class TestAttributeTextIndex(unittest.TestCase):
+
+    field = 'Humans are valuable resources and the more we have of them the better'
+
+    def test_query_stemmer(self):
+        index = self.index = AttributeTextIndex('field', 
+                                                lexicon=stemmer_lexicon())
+        index.index_doc(1, self)
+
+        assert_that(index.apply("resource"),
+                    contains(1))
+
+        assert_that(index.apply("human"),
+                    contains(1))
+
+        assert_that(index.apply("valuable"),
+                    contains(1))
+
+        assert_that(list(index.apply("resource*")),
+                    is_([]))

@@ -20,12 +20,16 @@ from zope.catalog.attribute import AttributeIndex
 
 from zope.catalog.interfaces import ICatalogIndex
 
+from zope.catalog.text import TextIndex
+
 from zope.container.contained import Contained
 
 import zope.index.field
 import zope.index.keyword
+from zope.index.text import lexicon
 
 import zc.catalog.index
+import zc.catalog.stemmer
 import zc.catalog.catalogindex
 
 import BTrees
@@ -33,6 +37,7 @@ import BTrees
 from nti.property.property import alias
 
 from nti.zope_catalog.interfaces import ISetIndex
+from nti.zope_catalog.interfaces import ITextIndex
 from nti.zope_catalog.interfaces import IFieldIndex
 from nti.zope_catalog.interfaces import IValueIndex
 from nti.zope_catalog.interfaces import IKeywordIndex
@@ -318,3 +323,24 @@ class NormalizationWrapper(_ZCApplyMixin,
         # must rely on the order of parameters
         super(NormalizationWrapper, self).__init__(field_name, interface, field_callable,
                                                    index, normalizer, is_collection)
+
+
+# text
+
+
+def stemmer_lexicon(lang='english', stopwords=True):
+    pipeline = [
+        lexicon.Splitter(),
+        lexicon.CaseNormalizer(),
+    ]
+    if stopwords:
+        pipeline.append(lexicon.StopWordRemover())
+    pipeline.append(zc.catalog.stemmer.Stemmer(lang))
+    return lexicon.Lexicon(*pipeline)
+
+
+@interface.implementer(ITextIndex) 
+class AttributeTextIndex(TextIndex):
+
+    #: We default to 64-bit btrees.
+    family = BTrees.family64
