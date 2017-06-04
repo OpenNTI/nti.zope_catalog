@@ -26,42 +26,9 @@ from zc.catalog.interfaces import INormalizer
 
 from persistent import Persistent
 
-from nti.zodb.containers import bit64_int_to_time
-from nti.zodb.containers import time_to_64bit_int
+from nti.zope_catalog.mixin import AbstractNormalizerMixin as _AbstractNormalizerMixin
 
-
-class _AbstractNormalizerMixin(object):
-
-    def any(self, value, index):
-        return self.value(value),
-
-    def all(self, value, index):
-        return self.value(value)
-
-    def minimum(self, value, index, exclude=False):
-        return self.value(value)
-
-    def maximum(self, value, index, exclude=False):
-        return self.value(value)
-
-
-@interface.implementer(INormalizer)
-class TimestampTo64BitIntNormalizer(_AbstractNormalizerMixin):
-    """
-    Normalizes incoming floating point objects representing Unix
-    timestamps to 64-bit integers. Use this with a
-    :class:`zc.catalog.catalogindex.NormalizationWrapper`. Note
-    that when you do so, the values returned by a method like
-    :meth:`zc.catalog.interfaces.IIndexValues` will be integer
-    representations, not floating point timestamps.
-    """
-    __slots__ = ()
-
-    def value(self, value):
-        return time_to_64bit_int(value)
-
-    def original_value(self, value):
-        return bit64_int_to_time(value)
+from nti.zope_catalog.number import FloatTo64BitIntNormalizer as TimestampTo64BitIntNormalizer
 
 
 @interface.implementer(INormalizer)

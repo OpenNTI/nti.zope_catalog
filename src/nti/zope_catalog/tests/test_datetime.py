@@ -28,7 +28,7 @@ from nti.zope_catalog.index import NormalizationWrapper
 from nti.zope_catalog.tests import SharedConfiguringTestLayer
 
 
-class TestNormalizers(unittest.TestCase):
+class TestDatetime(unittest.TestCase):
 
     layer = SharedConfiguringTestLayer
 
