@@ -3,7 +3,6 @@
 """
 Support for working with :class:`zope.catalog.field` indexes.
 
-.. $Id$
 """
 
 from __future__ import print_function, absolute_import, division
@@ -219,7 +218,7 @@ class NormalizingKeywordIndex(zope.index.keyword.CaseInsensitiveKeywordIndex,
             elif not query:
                 return None, None
             else:
-                query_type, query = query.items()[0]
+                query_type, query = next(iter(query.items()))
                 query_type = query_type.lower()
         elif isinstance(query, six.string_types):
             query_type = 'and'
@@ -249,7 +248,7 @@ class NormalizingKeywordIndex(zope.index.keyword.CaseInsensitiveKeywordIndex,
         elif query_type in ('or', 'and'):
             res = super(NormalizingKeywordIndex, self).search(
                 query, operator=query_type)
-        elif query_type in ('between'):
+        elif query_type in ('between',):
             query = list(self._fwd_index.iterkeys(query[0], query[1]))
             res = super(NormalizingKeywordIndex, self).search(
                 query, operator='or')
@@ -339,7 +338,7 @@ def stemmer_lexicon(lang='english', stopwords=True):
     return lexicon.Lexicon(*pipeline)
 
 
-@interface.implementer(ITextIndex) 
+@interface.implementer(ITextIndex)
 class AttributeTextIndex(TextIndex):
 
     #: We default to 64-bit btrees.

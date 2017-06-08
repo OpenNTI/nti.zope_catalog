@@ -43,9 +43,9 @@ setup(
     tests_require=TESTS_REQUIRE,
     install_requires=[
         'setuptools',
-        'BTrees',
-        'nti.property',
-        'nti.zodb',
+        'BTrees >= 4.4.1',
+        'nti.property >= 1.0.0',
+        'nti.zodb >= 1.0.0',
         'persistent',
         'pytz',
         'six',
@@ -58,6 +58,7 @@ setup(
         'zope.index',
         'zope.interface',
         'zope.location',
+        'zopyx.txng3.ext >= 4.0.0'
     ],
     extras_require={
         'test': TESTS_REQUIRE,

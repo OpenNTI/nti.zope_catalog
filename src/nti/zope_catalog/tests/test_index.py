@@ -8,6 +8,7 @@ __docformat__ = "restructuredtext en"
 # pylint: disable=W0212,R0904
 
 from hamcrest import is_
+from hamcrest import is_not
 from hamcrest import raises
 from hamcrest import calling
 from hamcrest import has_key
@@ -97,11 +98,11 @@ class TestNormalizingKeywordIndex(unittest.TestCase):
         assert_that(res, has_length(1))
         assert_that(res, contains(3))
 
-        res = self.index.apply({'query': ['aizen', 'kuchiki'], 
+        res = self.index.apply({'query': ['aizen', 'kuchiki'],
                                  'operator': 'or'})
         assert_that(res, has_length(2))
 
-        res = self.index.apply({'query': ['aizen', 'kuchiki'], 
+        res = self.index.apply({'query': ['aizen', 'kuchiki'],
                                  'operator': 'and'})
         assert_that(res, has_length(0))
 
@@ -135,7 +136,7 @@ class TestNormalizingKeywordIndex(unittest.TestCase):
 
 
 class TestCaseInsensitiveAttributeIndex(unittest.TestCase):
-    
+
     field = 'VALUE'
 
     def setUp(self):
@@ -201,12 +202,22 @@ class TestIntegerAttributeIndex(unittest.TestCase):
 
 class TestAttributeTextIndex(unittest.TestCase):
 
-    field = 'Humans are valuable resources and the more we have of them the better'
+    field = u'Humans are valuable resources and the more we have of them the better'
 
     def test_query_stemmer(self):
-        index = self.index = AttributeTextIndex('field', 
-                                                lexicon=stemmer_lexicon())
+        index = AttributeTextIndex('field',
+                                   lexicon=stemmer_lexicon())
         index.index_doc(1, self)
+
+        assert_that(index.documentCount(), is_(1))
+
+        # Make sure the words got stemmed correctly. This fails
+        # if zopyx.txng3.ext is not installed.
+        assert_that(index.lexicon.get_wid('resources'), is_(0))
+        assert_that(index.lexicon.get_wid('resource'), is_(0))
+        assert_that(index.lexicon.get_wid('resourc'), is_not(0))
+
+
 
         assert_that(index.apply("resource"),
                     contains(1))
