@@ -7,3 +7,9 @@
 
 .. image:: https://coveralls.io/repos/github/NextThought/nti.zope_catalog/badge.svg?branch=master
     :target: https://coveralls.io/github/NextThought/nti.zope_catalog?branch=master
+
+.. image:: https://readthedocs.org/projects/ntizope-catalog/badge/?version=latest
+    :target: http://ntizope-catalog.readthedocs.io/en/latest/?badge=latest
+    :alt: Documentation Status
+
+Utilities and extensions for ZODB-based Zope catalogs and indexes.

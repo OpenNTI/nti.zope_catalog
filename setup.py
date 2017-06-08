@@ -1,10 +1,6 @@
 import codecs
 from setuptools import setup, find_packages
 
-entry_points = {
-    'console_scripts': [
-    ],
-}
 
 TESTS_REQUIRE = [
     'nti.testing',
@@ -30,6 +26,7 @@ setup(
         'Intended Audience :: Developers',
         'Natural Language :: English',
         'Operating System :: OS Independent',
+        'Framework :: ZODB',
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
@@ -37,6 +34,7 @@ setup(
         'Programming Language :: Python :: Implementation :: CPython',
         'Programming Language :: Python :: Implementation :: PyPy',
     ],
+    url="https://github.com/NextThought/nti.zope_catalog",
     zip_safe=True,
     packages=find_packages('src'),
     package_dir={'': 'src'},
@@ -64,6 +62,4 @@ setup(
     extras_require={
         'test': TESTS_REQUIRE,
     },
-    entry_points=entry_points,
-    test_suite="nti.zope_catalog.tests",
 )
