@@ -17,12 +17,8 @@ from nti.zope_catalog.index import NormalizationWrapper
 
 from nti.zope_catalog.string import StringTokenNormalizer
 
-from nti.zope_catalog.tests import SharedConfiguringTestLayer
-
 
 class TestStringNormalizer(unittest.TestCase):
-
-    layer = SharedConfiguringTestLayer
 
     field = 'ABC'
 

@@ -17,28 +17,27 @@ from zope.index.topic.filter import PythonFilteredSet
 from nti.zope_catalog.topic import TopicIndex
 from nti.zope_catalog.topic import ExtentFilteredSet
 
-from nti.zope_catalog.tests import SharedConfiguringTestLayer
 
+class Context(object):
+    in_extent = False
+    in_filter = False
+    docid = None
+
+    def __init__(self, in_extent=False, in_filter=False, docid=None):
+        self.in_extent = in_extent
+        self.in_filter = in_filter
+        self.docid = docid
+
+def default_expression(_a, _b, obj):
+    return obj.in_extent
 
 class TestTopicIndex(unittest.TestCase):
-
-    layer = SharedConfiguringTestLayer
 
     def test_apply_mixed_topics(self):
         # We can mix normal filtered sets and extent filtered sets
         # and query appropriately
 
-        class Context(object):
-            in_extent = False
-            in_filter = False
-            docid = None
-
-            def __init__(self, in_extent=False, in_filter=False, docid=None):
-                self.in_extent = in_extent
-                self.in_filter = in_filter
-                self.docid = docid
-
-        extent = ExtentFilteredSet('extent', lambda _1, _2, x: x.in_extent)
+        extent = ExtentFilteredSet('extent', default_expression)
         _filter = PythonFilteredSet('filter',
                                     'context.in_filter',
                                      family=extent.family)
@@ -103,3 +102,21 @@ class TestTopicIndex(unittest.TestCase):
                     is_(set()))
         assert_that(set(index.apply({'any_of': ['extent', 'filter']})),
                     is_({2, 3}))
+
+
+class TestExtentFilteredSet(unittest.TestCase):
+
+    def test_ids_and_extent(self):
+        extent = ExtentFilteredSet('extent', default_expression)
+        assert_that(extent.ids(), is_(()))
+
+        in_extent = Context(in_extent=True, docid=1)
+        in_none = Context(docid=4)
+
+        extent.index_doc(in_extent.docid, in_extent)
+        extent.index_doc(in_none.docid, in_none)
+
+        assert_that(extent.ids(), is_((1,)))
+        extent_extent = extent.getExtent()
+        assert_that(list(extent_extent.set),
+                    is_([1]))

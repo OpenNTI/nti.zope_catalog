@@ -20,18 +20,16 @@ from nti.zope_catalog.number import FloatToNormalized64BitIntNormalizer
 from nti.zope_catalog.index import IntegerValueIndex
 from nti.zope_catalog.index import NormalizationWrapper
 
-from nti.zope_catalog.tests import SharedConfiguringTestLayer
-
 
 class TestNumber(unittest.TestCase):
-
-    layer = SharedConfiguringTestLayer
 
     field = 1
 
     def test_int_normalizer(self):
         assert_that(FloatTo64BitIntNormalizer().value(-123456.78),
                     is_(-4540151738323089490))
+        assert_that(FloatTo64BitIntNormalizer().original_value(-4540151738323089490),
+                    is_(-123456.78))
 
     def test_combined_normalizer(self):
         orig = 123456.78

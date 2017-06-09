@@ -16,6 +16,7 @@ from hamcrest import contains
 from hamcrest import has_length
 from hamcrest import assert_that
 from hamcrest import has_property
+from hamcrest import none
 
 import unittest
 
@@ -25,17 +26,93 @@ from nti.zope_catalog.index import stemmer_lexicon
 
 from nti.zope_catalog.index import AttributeTextIndex
 from nti.zope_catalog.index import IntegerAttributeIndex
+from nti.zope_catalog.index import NormalizingFieldIndex
 from nti.zope_catalog.index import NormalizingKeywordIndex
 from nti.zope_catalog.index import CaseInsensitiveAttributeFieldIndex
-
-from nti.zope_catalog.tests import SharedConfiguringTestLayer
+from nti.zope_catalog.index import ValueIndex
+from nti.zope_catalog.index import SetIndex
+from nti.zope_catalog.index import IntegerValueIndex
 
 family = BTrees.family64
 
+class TestNormalizingFieldIndex(unittest.TestCase):
+
+    def setUp(self):
+        super(TestNormalizingFieldIndex, self).setUp()
+        class _NormalizingIndex(NormalizingFieldIndex):
+            def normalize(self, value):
+                return value.lower() if value else value
+        self.index = _NormalizingIndex()
+
+    def test_ids(self):
+        assert_that(list(self.index.ids()),
+                    is_([]))
+
+        self.index.index_doc(1, 'FOO')
+        assert_that(list(self.index.ids()),
+                    is_([1]))
+
+    def test_doc_value(self):
+        assert_that(self.index.doc_value(1),
+                    is_(none()))
+        self.index.index_doc(1, 'FOO')
+        assert_that(self.index.doc_value(1),
+                    is_('foo'))
+
+    def test_apply(self):
+        assert_that(list(self.index.apply(('FOO', 'FOO'))),
+                    is_([]))
+        self.index.index_doc(1, 'FOO')
+        assert_that(list(self.index.apply(('foo', 'foo'))),
+                    is_([1]))
+
+    def test_zip(self):
+        assert_that(list(self.index.zip((1,))),
+                    is_([(1, None)]))
+        self.index.index_doc(1, 'FOO')
+        assert_that(list(self.index.zip((1,))),
+                    is_([(1, 'foo')]))
+
+class TestValueIndex(unittest.TestCase):
+
+    def setUp(self):
+        super(TestValueIndex, self).setUp()
+        self.index = ValueIndex()
+
+    def test_zip(self):
+        assert_that(list(self.index.zip((1,))),
+                    is_([(1, None)]))
+        self.index.index_doc(1, 'FOO')
+        assert_that(list(self.index.zip((1,))),
+                    is_([(1, 'FOO')]))
+
+class TestSetIndex(unittest.TestCase):
+
+    def setUp(self):
+        super(TestSetIndex, self).setUp()
+        self.index = SetIndex()
+
+    def test_zip(self):
+        assert_that(list(self.index.zip((1,))),
+                    is_([(1, None)]))
+        self.index.index_doc(1, ['FOO'])
+        assert_that(list(self.index.zip((1,))),
+                    is_([(1, {'FOO'})]))
+
+class TestIntegerValueIndex(unittest.TestCase):
+
+    def setUp(self):
+        super(TestIntegerValueIndex, self).setUp()
+        self.index = IntegerValueIndex()
+
+    def test_zip(self):
+        assert_that(list(self.index.zip((1,))),
+                    is_([(1, None)]))
+        self.index.index_doc(1, 1)
+        assert_that(list(self.index.zip((1,))),
+                    is_([(1, 1)]))
 
 class TestNormalizingKeywordIndex(unittest.TestCase):
-
-    layer = SharedConfiguringTestLayer
 
     field = 'VALUE'
 
@@ -46,93 +123,141 @@ class TestNormalizingKeywordIndex(unittest.TestCase):
     def test_family(self):
         assert_that(self.index, has_property('family', family))
 
-    def test_ids(self):
+    def test_zip(self):
+        assert_that(list(self.index.zip((1,))),
+                    is_([(1, None)]))
+        self.index.index_doc(1, ['Foo'])
+        assert_that(list(self.index.zip((1,))),
+                    is_([(1, {'foo'})]))
+
+    def test_ids_and_words(self):
         self.index.index_doc(1, ('aizen',))
         self.index.index_doc(2, ['ichigo'])
         self.index.index_doc(3, ['Kuchiki', 'rukia'])
-        ids = sorted(list(self.index.ids()))
+        ids = sorted(self.index.ids())
         assert_that(ids, is_([1, 2, 3]))
+
+        words = sorted(self.index.words())
+        assert_that(words,
+                    is_(['aizen', 'ichigo', 'kuchiki', 'rukia']))
 
     def test_remove_words(self):
-        self.index.index_doc(1, ('aizen',))
-        self.index.index_doc(2, ['ichigo'])
-        self.index.index_doc(3, ['Kuchiki', 'rukia'])
-        assert_that(self.index.documentCount(), is_(3))
-        assert_that(self.index.wordCount(), is_(4))
+        index = self.index
+        index.index_doc(1, ('aizen',))
+        index.index_doc(2, ['ichigo'])
+        index.index_doc(3, ['Kuchiki', 'rukia'])
+        assert_that(index.documentCount(), is_(3))
+        assert_that(index.wordCount(), is_(4))
 
-        self.index.remove_words(['xxx'])
-        ids = sorted(list(self.index.ids()))
+        index.remove_words(['xxx'])
+        ids = sorted(list(index.ids()))
         assert_that(ids, is_([1, 2, 3]))
-        assert_that(self.index.documentCount(), is_(3))
-        assert_that(self.index.wordCount(), is_(4))
+        assert_that(index.documentCount(), is_(3))
+        assert_that(index.wordCount(), is_(4))
 
-        self.index.remove_words(('aizen',))
-        ids = sorted(list(self.index.ids()))
+        index.remove_words(('aizen',))
+        ids = sorted(list(index.ids()))
         assert_that(ids, is_([2, 3]))
-        assert_that(self.index.documentCount(), is_(2))
-        assert_that(self.index.wordCount(), is_(3))
+        assert_that(index.documentCount(), is_(2))
+        assert_that(index.wordCount(), is_(3))
 
-        self.index.remove_words(('rukia',))
-        ids = sorted(list(self.index.ids()))
+        index.remove_words(('rukia',))
+        ids = sorted(list(index.ids()))
         assert_that(ids, is_([2, 3]))
-        assert_that(self.index.documentCount(), is_(2))
-        assert_that(self.index.wordCount(), is_(2))
+        assert_that(index.documentCount(), is_(2))
+        assert_that(index.wordCount(), is_(2))
 
-        self.index.remove_words(('Kuchiki',))
-        ids = sorted(list(self.index.ids()))
+        index.remove_words(('Kuchiki',))
+        ids = sorted(list(index.ids()))
         assert_that(ids, is_([2]))
-        assert_that(self.index.documentCount(), is_(1))
-        assert_that(self.index.wordCount(), is_(1))
+        assert_that(index.documentCount(), is_(1))
+        assert_that(index.wordCount(), is_(1))
+
+    def test_remove_words_in_already_corrupted_index(self):
+        from zope.testing.loggingsupport import InstalledHandler
+        handler = InstalledHandler('nti.zope_catalog.index')
+        self.addCleanup(handler.uninstall)
+
+        index = self.index
+        index.index_doc(1, ('aizen',))
+        index.index_doc(2, ['ichigo'])
+        index.index_doc(3, ['Kuchiki', 'rukia'])
+        del index._rev_index[3]
+        index.remove_words(('Kuchiki',))
+        assert_that(handler.records[0].msg, is_("Your index is corrupted: %s"))
+
 
     def test_apply(self):
-        self.index.index_doc(1, ('aizen',))
-        self.index.index_doc(2, ['ichigo'])
-        self.index.index_doc(3, ['Kuchiki'])
-        self.index.index_doc(4, ['renji', 'zaraki'])
+        index = self.index
+        index.index_doc(1, ('aizen',))
+        index.index_doc(2, ['ichigo'])
+        index.index_doc(3, ['Kuchiki'])
+        index.index_doc(4, ['renji', 'zaraki'])
 
-        res = self.index.apply({'query': ['ichigo']})
+        # Bad queries first
+        assert_that(list(index.apply({})),
+                    is_([]))
+        assert_that(calling(index.apply).with_args({'a': 1, 'b': 2}),
+                    raises(ValueError))
+        assert_that(calling(index.apply).with_args(self),
+                    raises(ValueError))
+
+        res = index.apply({'query': ['ichigo']})
         assert_that(res, has_length(1))
         assert_that(res, contains(2))
 
-        res = self.index.apply({'query': 'kuchiki'})
+        res = index.apply({'query': 'kuchiki'})
         assert_that(res, has_length(1))
         assert_that(res, contains(3))
 
-        res = self.index.apply({'query': ['aizen', 'kuchiki'],
+        res = index.apply({'query': ['aizen', 'kuchiki'],
                                  'operator': 'or'})
         assert_that(res, has_length(2))
 
-        res = self.index.apply({'query': ['aizen', 'kuchiki'],
+        res = index.apply({'query': ['aizen', 'kuchiki'],
                                  'operator': 'and'})
         assert_that(res, has_length(0))
 
-        res = self.index.apply('aizen')
+        res = index.apply('aizen')
         assert_that(res, has_length(1))
         assert_that(res, contains(1))
 
-        res = self.index.apply({'any_of': ('aizen', 'kuchiki')})
+        res = index.apply({'any_of': ('aizen', 'kuchiki')})
         assert_that(res, has_length(2))
 
-        res = self.index.apply({'any': None})
+        res = index.apply({'any': None})
         assert_that(res, has_length(4))
 
-        res = self.index.apply({'all': ('aizen', 'ichigo')})
+        res = index.apply({'all': ('aizen', 'ichigo')})
         assert_that(res, has_length(0))
 
-        res = self.index.apply({'all': ('zaraki', 'renji')})
+        res = index.apply({'all': ('zaraki', 'renji')})
         assert_that(res, has_length(1))
 
-        res = self.index.apply({'between': ('a', 'z')})
+        res = index.apply({'between': ('a', 'z')})
         assert_that(res, has_length(4))
 
-        res = self.index.apply({'between': ('r', 'z')})
+        res = index.apply({'between': ('r', 'z')})
         assert_that(res, has_length(1))
 
-        res = self.index.apply(['rukia'])
+        res = index.apply(['rukia'])
         assert_that(res, has_length(0))
 
-        res = self.index.apply([1, 2, 3])
+        res = index.apply([1, 2, 3])
         assert_that(res, has_length(0))
+
+        # Extent query
+        from zc.catalog.extentcatalog import Extent
+        extent = Extent(family)
+        assert_that(list(index.apply(extent)),
+                    is_([]))
+        extent.add(1, None)
+
+        assert_that(list(index.apply(extent)),
+                    is_([1]))
+
+        assert_that(list(index.apply({'any': extent})),
+                    is_([1]))
 
 
 class TestCaseInsensitiveAttributeIndex(unittest.TestCase):

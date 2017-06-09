@@ -3,13 +3,14 @@
 """
 Catalog extensions.
 
-.. $Id$
 """
 
 from __future__ import print_function, absolute_import, division
 __docformat__ = "restructuredtext en"
 
 logger = __import__('logging').getLogger(__name__)
+
+import warnings
 
 from zope.catalog.catalog import Catalog as _ZCatalog
 
@@ -25,12 +26,25 @@ from nti.zope_catalog.interfaces import INoAutoIndex
 class ResultSet(object):
     """
     Lazily accessed set of objects.
+
+    This is just like :class:`zope.catalog.catalog.ResultSet`
+    except it is slower (it has more overhead) and it offers the dubious
+    feature of ignoring broken objects (which is a footgun if ever
+    there was). If you have such objects, your code or deployment
+    is broken.
+
+    Prefer not to use this class in normal operations (it might be useful
+    for recovery, but even that's doubtful since it doesn't track
+    which objects were "invalid").
     """
 
     def __init__(self, uids, uidutil, ignore_invalid=False):
         self.uids = uids
         self.uidutil = uidutil
         self.ignore_invalid = ignore_invalid
+        if ignore_invalid:
+            warnings.warn("Please do not ignore corrupted databases.",
+                          stacklevel=2)
 
     def __len__(self):
         return len(self.uids)
@@ -41,7 +55,9 @@ class ResultSet(object):
             if isBroken(obj, uid):
                 obj = None
         else:
-            obj = self.uidutil.queryObject(uid)
+            obj = self.uidutil.getObject(uid)
+        if obj is None:
+            logger.warn("Your database is corrupted. There is no object for id %d", uid)
         return obj
     getObject = get_object
 
@@ -57,6 +73,14 @@ class ResultSet(object):
             yield obj
 
     def count(self):
+        """
+        How many objects are there?
+
+        In a proper database, this should be identical to the
+        len() of this object. This is only different if the database
+        is corrupt and needs fixed. If you see this, this is a strong
+        signal that your code is broken.
+        """
         result = 0
         for _, _ in self.items():
             result += 1
@@ -83,8 +107,11 @@ class Catalog(_ZCatalog):
 
     family = BTrees.family64
 
+    def _visitAllSublocations(self):
+        return super(Catalog, self)._visitSublocations()
+
     def _visitSublocations(self):
-        for uid, obj in super(Catalog, self)._visitSublocations():
+        for uid, obj in self._visitAllSublocations():
             if INoAutoIndex.providedBy(obj):
                 continue
             yield uid, obj

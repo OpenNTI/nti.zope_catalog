@@ -3,7 +3,6 @@
 """
 Support for writing topic indexes and the filtered sets that go with them.
 
-.. $Id$
 """
 
 from __future__ import print_function, absolute_import, division
@@ -19,7 +18,7 @@ from zope.catalog.interfaces import ICatalogIndex
 
 from zope.container.contained import Contained
 
-from zope.index.topic import TopicIndex
+from zope.index.topic import TopicIndex as _TopicIndex
 from zope.index.topic.filter import FilteredSetBase
 
 from zc.catalog.extentcatalog import FilterExtent
@@ -28,7 +27,7 @@ import BTrees
 
 
 @interface.implementer(ICatalogIndex)
-class TopicIndex(TopicIndex, Contained):
+class TopicIndex(_TopicIndex, Contained):
     """
     A topic index that implements IContained and ICatalogIndex for use with
     catalog indexes.
