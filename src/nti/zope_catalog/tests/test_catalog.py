@@ -27,6 +27,7 @@ from zope import interface
 from nti.zope_catalog.interfaces import INoAutoIndex
 from nti.zope_catalog.catalog import Catalog
 from nti.zope_catalog.catalog import ResultSet
+from . import NTIZopeCatalogLayer
 
 family = BTrees.family64
 
@@ -117,3 +118,13 @@ class TestResultSet(unittest.TestCase):
         assert_that(x, is_(none()))
 
         assert_that(w, has_length(1))
+
+class TestConfigure(unittest.TestCase):
+
+    layer = NTIZopeCatalogLayer
+
+    def test_noop(self):
+        # We just exist to make sure the configure could be loaded.
+        # We don't actually verify anything it does...because it
+        # does nothing
+        return

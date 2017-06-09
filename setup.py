@@ -3,7 +3,8 @@ from setuptools import setup, find_packages
 
 
 TESTS_REQUIRE = [
-    'nti.testing',
+    'pyhamcrest',
+    'zope.testing',
     'zope.testrunner',
 ]
 
