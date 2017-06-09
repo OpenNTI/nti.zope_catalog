@@ -13,3 +13,5 @@
     :alt: Documentation Status
 
 Utilities and extensions for ZODB-based Zope catalogs and indexes.
+
+This builds on both zope.catalog and zc.catalog.

@@ -59,15 +59,15 @@ class TopicIndex(_TopicIndex, Contained):
         The `query` can be in one of several formats:
 
         * A single string or a list of strings. In that case,
-                docids that are in all the given topics (by id) are returned.
-                This is equivalent to zc.catalog-style ``all_of`` operator.
+          docids that are in all the given topics (by id) are returned.
+          This is equivalent to zc.catalog-style ``all_of`` operator.
         * A dictionary containing exactly two keys, ``operator``
-                and ``query``. The value for ``operator`` is either
-                ``and`` or ``or`` to specify intersection or union, respectively.
-                The value for query is again a string or list of strings.
+          and ``query``. The value for ``operator`` is either
+          ``and`` or ``or`` to specify intersection or union, respectively.
+          The value for query is again a string or list of strings.
         * A dictionary containing exactly one key, either ``any_of``
-                or ``all_of``, whose value is the string or list of string
-                topic IDs.
+          or ``all_of``, whose value is the string or list of string
+          topic IDs.
         """
         # The first two cases are handled natively. The later case,
         # zc.catalog style, we handle by converting.

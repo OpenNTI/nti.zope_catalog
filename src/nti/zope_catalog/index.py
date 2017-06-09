@@ -3,6 +3,9 @@
 """
 Support for working with :class:`zope.catalog.field` indexes.
 
+All of the indexes we define are compatible with both
+:mod:`zope.catalog` query syntax (and internal attributes) and :mod:`zc.catalog`
+syntax (and public attributes).
 """
 
 from __future__ import print_function, absolute_import, division
@@ -105,13 +108,14 @@ class NormalizingFieldIndex(_ZipMixin,
     """
     A field index that normalizes before indexing or searching.
 
-    .. note:: For more flexibility, use a :class:`NormalizationWrapper`.
+    .. note:: For more flexibility, use a :class:`~.NormalizationWrapper`.
     """
 
     # We default to 64-bit trees
     family = BTrees.family64
 
     def normalize(self, value):
+        "Subclasses must override this method."
         raise NotImplementedError()
 
     def index_doc(self, docid, value):
@@ -134,8 +138,8 @@ class NormalizingFieldIndex(_ZipMixin,
 class CaseInsensitiveAttributeFieldIndex(AttributeIndex,
                                          NormalizingFieldIndex):
     """
-    An attribute index that normalizes case. It is queried with a two-tuple giving the
-    min and max values.
+    An attribute index that normalizes case. It is queried with a
+    two-tuple giving the min and max values.
     """
 
     def normalize(self, value):
@@ -156,12 +160,12 @@ class ValueIndex(_ZCApplyMixin,
                  _ZCAbstractIndexMixin,
                  _ZipMixin,
                  zc.catalog.index.ValueIndex):
-    pass
+    "An index of raw values."
 
 
 class AttributeValueIndex(ValueIndex,
                           zc.catalog.catalogindex.ValueIndex):
-    pass
+    "An index of values stored in a particular attribute."
 
 
 @interface.implementer(ISetIndex)
@@ -169,11 +173,11 @@ class SetIndex(_ZCAbstractIndexMixin,
                _SetZipMixin,
                zc.catalog.index.SetIndex):
 
-    pass
+    "An index of values that are multiple."
 
 class AttributeSetIndex(SetIndex,
                         zc.catalog.catalogindex.SetIndex):
-    pass
+    "An index of values that are multiple and stored in an attribute."
 
 
 @interface.implementer(IIntegerValueIndex)
@@ -209,6 +213,10 @@ class IntegerAttributeIndex(IntegerValueIndex,
 class NormalizingKeywordIndex(_SetZipMixin,
                               zope.index.keyword.CaseInsensitiveKeywordIndex,
                               Contained):
+    """
+    A case-insensitive keyword index supporting traditional
+    queries as well as extent-based queries.
+    """
 
     family = BTrees.family64
 
@@ -302,7 +310,7 @@ class NormalizingKeywordIndex(_SetZipMixin,
 
 
 class AttributeKeywordIndex(AttributeIndex, NormalizingKeywordIndex):
-    pass
+    """An index for keywords stored in an attribute."""
 
 
 @interface.implementer(ICatalogIndex)  # The superclass forgets this
@@ -333,6 +341,9 @@ class NormalizationWrapper(_ZCApplyMixin,
 
 
 def stemmer_lexicon(lang='english', stopwords=True):
+    """
+    A lexicon for text indexes using zc.catalog.
+    """
     pipeline = [
         lexicon.Splitter(),
         lexicon.CaseNormalizer(),
@@ -345,6 +356,14 @@ def stemmer_lexicon(lang='english', stopwords=True):
 
 @interface.implementer(ITextIndex)
 class AttributeTextIndex(TextIndex):
+    """A 64-bit text index.
+
+    Example::
+
+        index = AttributeTextIndex('field',
+                                   lexicon=stemmer_lexicon())
+
+    """
 
     #: We default to 64-bit btrees.
     family = BTrees.family64

@@ -84,7 +84,7 @@ class TimestampToNormalized64BitIntNormalizer(Persistent,
     """
     Normalizes incoming Unix timestamps to have a set resolution,
     by default minutes, and then converts them to integers
-    that can be stored in an :class:`nti.zodb_catalog.field.IntegerAttributeIndex`.
+    that can be stored in an :class:`.IntegerAttributeIndex`.
     """
 
     def __init__(self, resolution=TimestampNormalizer.RES_MINUTE):
