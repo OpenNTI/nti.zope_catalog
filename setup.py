@@ -50,7 +50,7 @@ setup(
         'persistent',
         'pytz',
         'six',
-        'zc.catalog',
+        'zc.catalog[stemmer] >= 2.0.1',
         'ZODB',
         'zope.cachedescriptors',
         'zope.catalog',
