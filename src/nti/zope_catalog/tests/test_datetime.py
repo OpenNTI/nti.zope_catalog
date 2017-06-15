@@ -25,12 +25,8 @@ from nti.zope_catalog.datetime import TimestampToNormalized64BitIntNormalizer
 from nti.zope_catalog.index import IntegerValueIndex
 from nti.zope_catalog.index import NormalizationWrapper
 
-from nti.zope_catalog.tests import SharedConfiguringTestLayer
-
 
 class TestDatetime(unittest.TestCase):
-
-    layer = SharedConfiguringTestLayer
 
     field = 1
 
@@ -119,3 +115,24 @@ class TestDatetime(unittest.TestCase):
 
         assert_that(list(index.sort((2, 1))),
                     contains(2, 1))
+
+class TestTimestampNormalizer(unittest.TestCase):
+
+    def test_normalizes_datetime(self):
+        orig = datetime.datetime(2014, 2, 24, 12, 30, 7, 650261)
+        minute_normalized = datetime.datetime(2014, 2, 24, 12, 30)
+        normalizer = TimestampNormalizer()
+
+        assert_that(normalizer.value(orig),
+                    is_(time.mktime(minute_normalized.timetuple())))
+
+        # The methods we inherit but don't implement. See the extensive
+        # comment in the class.
+        assert_that(normalizer.any(orig, None),
+                    is_((time.mktime(minute_normalized.timetuple()),)))
+        assert_that(normalizer.all(orig, None),
+                    is_(time.mktime(minute_normalized.timetuple())))
+        assert_that(normalizer.minimum(orig, None),
+                    is_(time.mktime(minute_normalized.timetuple())))
+        assert_that(normalizer.maximum(orig, None),
+                    is_(time.mktime(minute_normalized.timetuple())))

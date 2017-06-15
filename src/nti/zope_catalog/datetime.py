@@ -3,7 +3,6 @@
 """
 Support efficiently storing datetime values in an index, normalized.
 
-.. $Id$
 """
 
 from __future__ import print_function, absolute_import, division
@@ -34,7 +33,7 @@ from nti.zope_catalog.number import FloatTo64BitIntNormalizer as TimestampTo64Bi
 @interface.implementer(INormalizer)
 class TimestampNormalizer(Persistent, _AbstractNormalizerMixin):
     """
-    Normalizes incoming Unix timestamps to have a set
+    Normalizes incoming Unix timestamps or datetimes to have a set
     resolution, by default minutes.
     """
 
@@ -55,12 +54,19 @@ class TimestampNormalizer(Persistent, _AbstractNormalizerMixin):
         return DateTimeNormalizer(self.resolution)
 
     def value(self, value):
+        """
+        Normalize to a floating point value.
+
+        .. versionchanged:: 1.0.0
+           Incoming datetimes are also normalized.
+        """
         if isinstance(value, datetime):
             dt = value
         else:
             dt = datetime.fromtimestamp(value)
-            dt = dt.replace(tzinfo=UTC)
-            dt = self._datetime_normalizer.value(dt)
+
+        dt = dt.replace(tzinfo=UTC)
+        dt = self._datetime_normalizer.value(dt)
         return time.mktime(dt.timetuple())
 
     # The provided date-time normalizer supports taking
@@ -78,7 +84,7 @@ class TimestampToNormalized64BitIntNormalizer(Persistent,
     """
     Normalizes incoming Unix timestamps to have a set resolution,
     by default minutes, and then converts them to integers
-    that can be stored in an :class:`nti.zodb_catalog.field.IntegerAttributeIndex`.
+    that can be stored in an :class:`.IntegerAttributeIndex`.
     """
 
     def __init__(self, resolution=TimestampNormalizer.RES_MINUTE):

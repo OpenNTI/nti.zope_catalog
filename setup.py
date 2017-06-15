@@ -1,13 +1,10 @@
 import codecs
 from setuptools import setup, find_packages
 
-entry_points = {
-    'console_scripts': [
-    ],
-}
 
 TESTS_REQUIRE = [
-    'nti.testing',
+    'pyhamcrest',
+    'zope.testing',
     'zope.testrunner',
 ]
 
@@ -30,6 +27,7 @@ setup(
         'Intended Audience :: Developers',
         'Natural Language :: English',
         'Operating System :: OS Independent',
+        'Framework :: ZODB',
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
@@ -37,6 +35,7 @@ setup(
         'Programming Language :: Python :: Implementation :: CPython',
         'Programming Language :: Python :: Implementation :: PyPy',
     ],
+    url="https://github.com/NextThought/nti.zope_catalog",
     zip_safe=True,
     packages=find_packages('src'),
     package_dir={'': 'src'},
@@ -45,13 +44,13 @@ setup(
     tests_require=TESTS_REQUIRE,
     install_requires=[
         'setuptools',
-        'BTrees',
-        'nti.property',
-        'nti.zodb',
+        'BTrees >= 4.4.1',
+        'nti.property >= 1.0.0',
+        'nti.zodb >= 1.0.0',
         'persistent',
         'pytz',
         'six',
-        'zc.catalog',
+        'zc.catalog[stemmer] >= 2.0.1',
         'ZODB',
         'zope.cachedescriptors',
         'zope.catalog',
@@ -60,10 +59,9 @@ setup(
         'zope.index',
         'zope.interface',
         'zope.location',
+        'zopyx.txng3.ext >= 4.0.0'
     ],
     extras_require={
         'test': TESTS_REQUIRE,
     },
-    entry_points=entry_points,
-    test_suite="nti.zope_catalog.tests",
 )

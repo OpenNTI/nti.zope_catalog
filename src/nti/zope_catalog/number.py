@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-.. $Id$
+Normalization of numbers.
 """
 
 from __future__ import print_function, absolute_import, division
@@ -26,7 +26,7 @@ from nti.zope_catalog.mixin import AbstractNormalizerMixin
 @interface.implementer(INormalizer)
 class FloatTo64BitIntNormalizer(AbstractNormalizerMixin):
     """
-    Normalizes incoming floating point objects to 64-bit integers. 
+    Normalizes incoming floating point objects to 64-bit integers.
     Use this with a
     :class:`zc.catalog.catalogindex.NormalizationWrapper`. Note
     that when you do so, the values returned by a method like

@@ -3,7 +3,9 @@
 """
 Support for working with :class:`zope.catalog.field` indexes.
 
-.. $Id$
+All of the indexes we define are compatible with both
+:mod:`zope.catalog` query syntax (and internal attributes) and :mod:`zc.catalog`
+syntax (and public attributes).
 """
 
 from __future__ import print_function, absolute_import, division
@@ -83,19 +85,37 @@ class _ZCAbstractIndexMixin(object):
     _rev_index = alias('documents_to_values')
 
 
+class _ZipMixin(object):
+
+    def zip(self, doc_ids=()):
+        for doc_id in doc_ids or ():
+            value = self._rev_index.get(doc_id)
+            yield doc_id, value
+
+class _SetZipMixin(_ZipMixin):
+
+    def zip(self, *args, **kwargs):
+        for d, v in _ZipMixin.zip(self, *args, **kwargs):
+            # TODO: Should we really be doing this? The values
+            # are usually [OO]TreeSet, which is more memory and persistence
+            # friendly
+            yield d, set(v) if v is not None else None
+
 @interface.implementer(IFieldIndex)
-class NormalizingFieldIndex(zope.index.field.FieldIndex,
+class NormalizingFieldIndex(_ZipMixin,
+                            zope.index.field.FieldIndex,
                             Contained):
     """
     A field index that normalizes before indexing or searching.
 
-    .. note:: For more flexibility, use a :class:`NormalizationWrapper`.
+    .. note:: For more flexibility, use a :class:`~.NormalizationWrapper`.
     """
 
     # We default to 64-bit trees
     family = BTrees.family64
 
     def normalize(self, value):
+        "Subclasses must override this method."
         raise NotImplementedError()
 
     def index_doc(self, docid, value):
@@ -113,17 +133,13 @@ class NormalizingFieldIndex(zope.index.field.FieldIndex,
         result = self._rev_index.get(doc_id)
         return result
 
-    def zip(self, doc_ids=()):
-        for doc_id in doc_ids or ():
-            value = self._rev_index.get(doc_id)
-            yield doc_id, value
 
 
 class CaseInsensitiveAttributeFieldIndex(AttributeIndex,
                                          NormalizingFieldIndex):
     """
-    An attribute index that normalizes case. It is queried with a two-tuple giving the
-    min and max values.
+    An attribute index that normalizes case. It is queried with a
+    two-tuple giving the min and max values.
     """
 
     def normalize(self, value):
@@ -142,40 +158,35 @@ class CaseInsensitiveAttributeFieldIndex(AttributeIndex,
 @interface.implementer(IValueIndex)
 class ValueIndex(_ZCApplyMixin,
                  _ZCAbstractIndexMixin,
+                 _ZipMixin,
                  zc.catalog.index.ValueIndex):
-
-    def zip(self, doc_ids=()):
-        for doc_id in doc_ids or ():
-            value = self.documents_to_values.get(doc_id)
-            yield doc_id, value
+    "An index of raw values."
 
 
 class AttributeValueIndex(ValueIndex,
                           zc.catalog.catalogindex.ValueIndex):
-    pass
+    "An index of values stored in a particular attribute."
 
 
 @interface.implementer(ISetIndex)
 class SetIndex(_ZCAbstractIndexMixin,
+               _SetZipMixin,
                zc.catalog.index.SetIndex):
 
-    def zip(self, doc_ids=()):
-        for doc_id in doc_ids or ():
-            value = self.documents_to_values.get(doc_id)
-            yield doc_id, set(value) if value is not None else None
-
+    "An index of values that are multiple."
 
 class AttributeSetIndex(SetIndex,
                         zc.catalog.catalogindex.SetIndex):
-    pass
+    "An index of values that are multiple and stored in an attribute."
 
 
 @interface.implementer(IIntegerValueIndex)
 class IntegerValueIndex(_ZCApplyMixin,
                         _ZCAbstractIndexMixin,
+                        _ZipMixin,
                         zc.catalog.index.ValueIndex):
     """
-    A \"raw\" index that is optimized for, and only supports,
+    A "raw" index that is optimized for, and only supports,
     storing integer values. To normalize, use a :class:`zc.catalog.index.NormalizationWrapper`;
     to store in a catalog and normalize, use a  :class:`NormalizationWrapper`
     (which is an attribute index).
@@ -185,11 +196,6 @@ class IntegerValueIndex(_ZCApplyMixin,
         super(IntegerValueIndex, self).clear()
         self.documents_to_values = self.family.II.BTree()
         self.values_to_documents = self.family.IO.BTree()
-
-    def zip(self, doc_ids=()):
-        for doc_id in doc_ids or ():
-            value = self.documents_to_values.get(doc_id)
-            yield doc_id, value
 
 
 class IntegerAttributeIndex(IntegerValueIndex,
@@ -204,8 +210,13 @@ class IntegerAttributeIndex(IntegerValueIndex,
 
 
 @interface.implementer(IKeywordIndex)
-class NormalizingKeywordIndex(zope.index.keyword.CaseInsensitiveKeywordIndex,
+class NormalizingKeywordIndex(_SetZipMixin,
+                              zope.index.keyword.CaseInsensitiveKeywordIndex,
                               Contained):
+    """
+    A case-insensitive keyword index supporting traditional
+    queries as well as extent-based queries.
+    """
 
     family = BTrees.family64
 
@@ -219,14 +230,15 @@ class NormalizingKeywordIndex(zope.index.keyword.CaseInsensitiveKeywordIndex,
             elif not query:
                 return None, None
             else:
-                query_type, query = query.items()[0]
+                query_type, query = next(iter(query.items()))
                 query_type = query_type.lower()
         elif isinstance(query, six.string_types):
             query_type = 'and'
+        elif zc.catalog.interfaces.IExtent.providedBy(query):
+            # This is iterable, so must go before that test.
+            query_type = 'none'
         elif is_nonstr_iter(query):
             query_type = 'and'
-        elif zc.catalog.interfaces.IExtent.providedBy(query):
-            query_type = 'none'
         else:
             raise ValueError('Invalid query')
 
@@ -249,13 +261,13 @@ class NormalizingKeywordIndex(zope.index.keyword.CaseInsensitiveKeywordIndex,
         elif query_type in ('or', 'and'):
             res = super(NormalizingKeywordIndex, self).search(
                 query, operator=query_type)
-        elif query_type in ('between'):
+        elif query_type in ('between',):
             query = list(self._fwd_index.iterkeys(query[0], query[1]))
             res = super(NormalizingKeywordIndex, self).search(
                 query, operator='or')
         elif query_type == 'none':
             assert zc.catalog.interfaces.IExtent.providedBy(query)
-            res = query - self.family.IF.Set(self.ids())
+            res = query & self.family.IF.Set(self.ids())
         elif query_type == 'any':
             if query is None:
                 res = self.family.IF.Set(self.ids())
@@ -263,7 +275,7 @@ class NormalizingKeywordIndex(zope.index.keyword.CaseInsensitiveKeywordIndex,
                 assert zc.catalog.interfaces.IExtent.providedBy(query)
                 res = query & self.family.IF.Set(self.ids())
         else:
-            raise ValueError("unknown query type", query_type)
+            raise ValueError("unknown query type", query_type) # pragma: no cover (can't get here)
         return res
 
     def ids(self):
@@ -273,32 +285,32 @@ class NormalizingKeywordIndex(zope.index.keyword.CaseInsensitiveKeywordIndex,
         return self._fwd_index.keys()
 
     def remove_words(self, *seq):
+        # XXX: Why does this method exist?
+        # Why don't we just unindex the docs?
         seq = self.normalize(*seq)
         for word in seq:
             try:
                 docids = self._fwd_index[word]
+            except KeyError:
+                pass
+            else:
                 del self._fwd_index[word]
                 for docid in docids:
                     try:
                         s = self._rev_index[docid]
+                    except KeyError:
+                        logger.exception("Your index is corrupted: %s", word)
+                    else:
                         s.remove(word)
                         if not s:
                             del self._rev_index[docid]
                             self._num_docs.change(-1)
-                    except KeyError:
-                        pass
-            except KeyError:
-                pass
     removeWords = remove_words
 
-    def zip(self, doc_ids=()):
-        for doc_id in doc_ids or ():
-            value = self._rev_index.get(doc_id)
-            yield doc_id, set(value) if value is not None else None
 
 
 class AttributeKeywordIndex(AttributeIndex, NormalizingKeywordIndex):
-    pass
+    """An index for keywords stored in an attribute."""
 
 
 @interface.implementer(ICatalogIndex)  # The superclass forgets this
@@ -329,6 +341,9 @@ class NormalizationWrapper(_ZCApplyMixin,
 
 
 def stemmer_lexicon(lang='english', stopwords=True):
+    """
+    A lexicon for text indexes using zc.catalog.
+    """
     pipeline = [
         lexicon.Splitter(),
         lexicon.CaseNormalizer(),
@@ -339,8 +354,16 @@ def stemmer_lexicon(lang='english', stopwords=True):
     return lexicon.Lexicon(*pipeline)
 
 
-@interface.implementer(ITextIndex) 
+@interface.implementer(ITextIndex)
 class AttributeTextIndex(TextIndex):
+    """A 64-bit text index.
+
+    Example::
+
+        index = AttributeTextIndex('field',
+                                   lexicon=stemmer_lexicon())
+
+    """
 
     #: We default to 64-bit btrees.
     family = BTrees.family64

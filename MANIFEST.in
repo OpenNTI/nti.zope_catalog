@@ -1,6 +1,5 @@
-include README.rst
+include *.rst
 include LICENSE
-include CHANGES.rst
 include .coveragerc
 include AUTHORS
 include INSTALL
@@ -8,8 +7,10 @@ include TODO
 include babel.cfg
 include nose2.cfg
 include tox.ini
+include .travis.yml
 include *.txt
 include .nti_cover_package
+
 recursive-include doc *.py
 recursive-include doc *.rst
 recursive-include doc Makefile
