@@ -5,10 +5,9 @@ Interfaces related to catalogs.
 
 """
 
-from __future__ import print_function, absolute_import, division
-__docformat__ = "restructuredtext en"
-
-logger = __import__('logging').getLogger(__name__)
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
 
 from zope import interface
 
@@ -89,12 +88,29 @@ class IMetadataCatalog(ICatalog):
     The nti metadata catalog.
     """
 
-    def index_doc(self, iid, ob):
+    def index_doc(iid, ob):
         """
         This may or may not update our underlying index.
         """
 
-    def force_index_doc(self, iid, ob):
+    def force_index_doc(iid, ob):
         """
         Force the underlying index to update.
+        """
+    
+    def unindex_doc(docid):
+        """
+        This may or may not update our underlying index.
+        """
+
+    def force_unindex_doc(iid):
+        """
+        Remove a document from the index.
+
+        docid: int, identifying the document
+
+        return: None
+
+        This call is a no-op if the docid isn't in the index, however,
+        after this call, the index should have no references to the docid.
         """
