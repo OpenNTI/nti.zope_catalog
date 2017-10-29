@@ -93,17 +93,31 @@ class IMetadataCatalog(ICatalog):
         This may or may not update our underlying index.
         """
 
-    def force_index_doc(iid, ob):
+    def force_index_doc(docid, ob):
         """
-        Force the underlying index to update.
+        Add a document to the index.
+
+        docid: int, identifying the document
+
+        value: the value to be indexed
+
+        return: None
+
+        This can also be used to reindex documents.
         """
-    
+
+
+class IExtendedMetadataCatalog(IMetadataCatalog):
+    """
+    An extended nti metadata catalog.
+    """
+
     def unindex_doc(docid):
         """
         This may or may not update our underlying index.
         """
 
-    def force_unindex_doc(iid):
+    def force_unindex_doc(docid):
         """
         Remove a document from the index.
 
