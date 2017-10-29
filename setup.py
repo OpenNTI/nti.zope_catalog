@@ -5,6 +5,7 @@ from setuptools import setup, find_packages
 TESTS_REQUIRE = [
     'pyhamcrest',
     'zope.testing',
+    'zope.dottedname',
     'zope.testrunner',
 ]
 
