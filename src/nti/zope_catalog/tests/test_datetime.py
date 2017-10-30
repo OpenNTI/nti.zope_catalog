@@ -33,7 +33,7 @@ class TestDatetime(unittest.TestCase):
     field = 1
 
     def test_int_normalizer(self):
-        assert_that(TimestampTo64BitIntNormalizer().value(123456.78),
+        assert_that(TimestampTo64BitIntNormalizer._int_normalizer.value(123456.78),
                     is_(4683220298531686318))
 
     def test_timestamp_normalizer(self):
