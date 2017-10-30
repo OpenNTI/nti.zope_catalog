@@ -20,16 +20,16 @@ from zc.catalog.interfaces import INormalizer
 from zope import interface
 from zope.cachedescriptors.property import CachedProperty
 
-from nti.zope_catalog.mixin import AbstractNormalizerMixin as _AbstractNormalizerMixin
-from nti.zope_catalog.number import FloatTo64BitIntNormalizer as TimestampTo64BitIntNormalizer
+from nti.zope_catalog.mixin import AbstractNormalizerMixin
+from nti.zope_catalog.number import FloatTo64BitIntNormalizer
 
 __docformat__ = "restructuredtext en"
 
 
 @interface.implementer(INormalizer)
-class TimestampNormalizer(Persistent, _AbstractNormalizerMixin):
+class TimestampNormalizer(Persistent, AbstractNormalizerMixin):
     """
-    Normalizes incoming Unix timestamps or datetimes to have a set
+    Normalizes incoming Unix timestamps (or datetimes) to have a set
     resolution, by default minutes.
     """
 
@@ -80,27 +80,26 @@ class TimestampNormalizer(Persistent, _AbstractNormalizerMixin):
 
 
 @interface.implementer(INormalizer)
-class TimestampToNormalized64BitIntNormalizer(Persistent,
-                                              _AbstractNormalizerMixin):
+class TimestampTo64BitIntNormalizer(TimestampNormalizer):
     """
     Normalizes incoming Unix timestamps to have a set resolution,
     by default minutes, and then converts them to integers
     that can be stored in an :class:`.IntegerAttributeIndex`.
+
+    .. versionchanged:: 2.0.0
+       Now subclass :class:`TimestampNormalizer` and rework some internal
+       attributes.
+    .. versionchanged:: 2.0.0
+       Rename from ``TimestampToNormalized64BitIntNormalizer`` to
+       ``TimestampTo64BitIntNormalizer``. Previously, :class:`.FloatTo64BitIntNormalizer`
+       was imported under this name.
     """
 
-    # TODO: Extend TimestampNormalizer and simplify.
-
-    def __init__(self, resolution=TimestampNormalizer.RES_MINUTE):
-        self.resolution = resolution
-
-    @CachedProperty('resolution')
-    def _timestamp_normalizer(self):
-        return TimestampNormalizer(self.resolution)
-
-    @CachedProperty
-    def _int_normalizer(self):
-        return TimestampTo64BitIntNormalizer()
+    _int_normalizer = FloatTo64BitIntNormalizer()
 
     def value(self, value):
-        norm = self._timestamp_normalizer.value(value)
-        return self._int_normalizer.value(norm)
+        float_norm = TimestampNormalizer.value(self, value)
+        return self._int_normalizer.value(float_norm)
+
+#: Backwards compatibility alias.
+TimestampToNormalized64BitIntNormalizer = TimestampTo64BitIntNormalizer

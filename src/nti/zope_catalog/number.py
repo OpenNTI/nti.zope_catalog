@@ -42,16 +42,20 @@ class FloatTo64BitIntNormalizer(AbstractNormalizerMixin):
 
 
 @interface.implementer(INormalizer)
-class FloatToNormalized64BitIntNormalizer(Persistent,
-                                          AbstractNormalizerMixin):
+class PersistentFloatTo64BitIntNormalizer(Persistent,
+                                          FloatTo64BitIntNormalizer):
     """
-    Normalizes incoming float values to integers so
-    that can be stored in an :class:`nti.zodb_catalog.field.IntegerAttributeIndex`.
+    Persistent normalizer that can be stored in an
+    :class:`nti.zodb_catalog.field.IntegerAttributeIndex`.
+
+    .. versionchanged:: 2.0.0
+       Now subclasses ``FloatTo64BitIntNormalizer``.
+    .. versionchanged:: 2.0.0
+       Rename from ``FloatToNormalized64BitIntNormalizer`` to
+       ``PersistentFloatTo64BitIntNormalizer``.
     """
 
-    @CachedProperty
-    def _int_normalizer(self):
-        return FloatTo64BitIntNormalizer()
+    __slots__ = ()
 
-    def value(self, value):
-        return self._int_normalizer.value(value)
+#: Backwards compatibility alias.
+FloatToNormalized64BitIntNormalizer = PersistentFloatTo64BitIntNormalizer
