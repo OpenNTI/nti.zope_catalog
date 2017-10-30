@@ -1,5 +1,1 @@
-setuptools >= 36.0.1
-zope.interface
-zope.proxy
-BTrees
-repoze.sphinx.autointerface
+.[docs]
