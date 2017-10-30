@@ -4,10 +4,11 @@
 Mixin base classes.
 """
 
-from __future__ import print_function, absolute_import, division
-__docformat__ = "restructuredtext en"
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
 
-logger = __import__('logging').getLogger(__name__)
+__docformat__ = "restructuredtext en"
 
 
 class AbstractNormalizerMixin(object):

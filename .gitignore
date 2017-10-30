@@ -8,7 +8,7 @@
 build/
 dist/
 /.tox/
-doc/_build/
+docs/_build/
 
 .coverage
 htmlcov/

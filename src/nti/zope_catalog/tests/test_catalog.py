@@ -1,33 +1,34 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from __future__ import print_function, absolute_import, division
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
+# stdlib imports
+import unittest
+
+import BTrees
+from zope import interface
+
+from nti.zope_catalog.catalog import Catalog
+from nti.zope_catalog.catalog import ResultSet
+from nti.zope_catalog.interfaces import INoAutoIndex
+
+from . import NTIZopeCatalogLayer
+
+from hamcrest import assert_that
+from hamcrest import contains
+from hamcrest import has_length
+from hamcrest import is_
+from hamcrest import none
+
+
 __docformat__ = "restructuredtext en"
 
 # disable: accessing protected members, too many methods
 # pylint: disable=W0212,R0904
 
-from hamcrest import is_
-from hamcrest import is_not
-from hamcrest import raises
-from hamcrest import calling
-from hamcrest import has_key
-from hamcrest import contains
-from hamcrest import has_length
-from hamcrest import assert_that
-from hamcrest import has_property
-from hamcrest import none
-
-import unittest
-
-import BTrees
-
-from zope import interface
-
-from nti.zope_catalog.interfaces import INoAutoIndex
-from nti.zope_catalog.catalog import Catalog
-from nti.zope_catalog.catalog import ResultSet
-from . import NTIZopeCatalogLayer
 
 family = BTrees.family64
 
@@ -99,10 +100,10 @@ class TestResultSet(unittest.TestCase):
                 return self
 
         uids = UIDS()
-        r = ResultSet((1,), uids)
-        assert_that(list(r), is_([uids]))
-        assert_that(r, has_length(1))
-        assert_that(r.count(), is_(1))
+        r = ResultSet((1, 2, 3), uids)
+        assert_that(list(r), is_([uids, uids, uids]))
+        assert_that(r, has_length(3))
+        assert_that(r.count(), is_(3))
 
     def test_broken(self):
         # The functionality itself is broken.

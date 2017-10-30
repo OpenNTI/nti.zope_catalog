@@ -8,42 +8,38 @@ All of the indexes we define are compatible with both
 syntax (and public attributes).
 """
 
-from __future__ import print_function, absolute_import, division
-__docformat__ = "restructuredtext en"
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
 
-logger = __import__('logging').getLogger(__name__)
-
-import six
+# stdlib imports
 import collections
 
-from zope import interface
-
+import BTrees
+import six
+import zc.catalog.catalogindex
+import zc.catalog.index
+import zc.catalog.stemmer
+from zope.interface import implementer
 from zope.catalog.attribute import AttributeIndex
-
 from zope.catalog.interfaces import ICatalogIndex
-
 from zope.catalog.text import TextIndex
-
 from zope.container.contained import Contained
-
 import zope.index.field
 import zope.index.keyword
 from zope.index.text import lexicon
 
-import zc.catalog.index
-import zc.catalog.stemmer
-import zc.catalog.catalogindex
-
-import BTrees
-
 from nti.property.property import alias
-
+from nti.zope_catalog.interfaces import IFieldIndex
+from nti.zope_catalog.interfaces import IIntegerValueIndex
+from nti.zope_catalog.interfaces import IKeywordIndex
 from nti.zope_catalog.interfaces import ISetIndex
 from nti.zope_catalog.interfaces import ITextIndex
-from nti.zope_catalog.interfaces import IFieldIndex
 from nti.zope_catalog.interfaces import IValueIndex
-from nti.zope_catalog.interfaces import IKeywordIndex
-from nti.zope_catalog.interfaces import IIntegerValueIndex
+
+__docformat__ = "restructuredtext en"
+
+logger = __import__('logging').getLogger(__name__)
 
 
 def is_nonstr_iter(x):
@@ -94,14 +90,14 @@ class _ZipMixin(object):
 
 class _SetZipMixin(_ZipMixin):
 
-    def zip(self, *args, **kwargs):
-        for d, v in _ZipMixin.zip(self, *args, **kwargs):
+    def zip(self, doc_ids=()):
+        for d, v in _ZipMixin.zip(self, doc_ids):
             # TODO: Should we really be doing this? The values
             # are usually [OO]TreeSet, which is more memory and persistence
             # friendly
             yield d, set(v) if v is not None else None
 
-@interface.implementer(IFieldIndex)
+@implementer(IFieldIndex)
 class NormalizingFieldIndex(_ZipMixin,
                             zope.index.field.FieldIndex,
                             Contained):
@@ -155,7 +151,7 @@ class CaseInsensitiveAttributeFieldIndex(AttributeIndex,
 # that it is somewhat painful to construct
 
 
-@interface.implementer(IValueIndex)
+@implementer(IValueIndex)
 class ValueIndex(_ZCApplyMixin,
                  _ZCAbstractIndexMixin,
                  _ZipMixin,
@@ -168,7 +164,7 @@ class AttributeValueIndex(ValueIndex,
     "An index of values stored in a particular attribute."
 
 
-@interface.implementer(ISetIndex)
+@implementer(ISetIndex)
 class SetIndex(_ZCAbstractIndexMixin,
                _SetZipMixin,
                zc.catalog.index.SetIndex):
@@ -180,7 +176,7 @@ class AttributeSetIndex(SetIndex,
     "An index of values that are multiple and stored in an attribute."
 
 
-@interface.implementer(IIntegerValueIndex)
+@implementer(IIntegerValueIndex)
 class IntegerValueIndex(_ZCApplyMixin,
                         _ZCAbstractIndexMixin,
                         _ZipMixin,
@@ -209,7 +205,7 @@ class IntegerAttributeIndex(IntegerValueIndex,
     """
 
 
-@interface.implementer(IKeywordIndex)
+@implementer(IKeywordIndex)
 class NormalizingKeywordIndex(_SetZipMixin,
                               zope.index.keyword.CaseInsensitiveKeywordIndex,
                               Contained):
@@ -313,7 +309,7 @@ class AttributeKeywordIndex(AttributeIndex, NormalizingKeywordIndex):
     """An index for keywords stored in an attribute."""
 
 
-@interface.implementer(ICatalogIndex)  # The superclass forgets this
+@implementer(ICatalogIndex)  # The superclass forgets this
 class NormalizationWrapper(_ZCApplyMixin,
                            zc.catalog.catalogindex.NormalizationWrapper):
     """
@@ -333,6 +329,7 @@ class NormalizationWrapper(_ZCApplyMixin,
         """
         # sadly we can't reuse any of the defaults from the super classes, and we
         # must rely on the order of parameters
+        # pylint:disable=useless-super-delegation
         super(NormalizationWrapper, self).__init__(field_name, interface, field_callable,
                                                    index, normalizer, is_collection)
 
@@ -354,9 +351,10 @@ def stemmer_lexicon(lang='english', stopwords=True):
     return lexicon.Lexicon(*pipeline)
 
 
-@interface.implementer(ITextIndex)
+@implementer(ITextIndex)
 class AttributeTextIndex(TextIndex):
-    """A 64-bit text index.
+    """
+    A 64-bit text index.
 
     Example::
 

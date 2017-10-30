@@ -5,29 +5,25 @@ Support efficiently storing datetime values in an index, normalized.
 
 """
 
-from __future__ import print_function, absolute_import, division
-__docformat__ = "restructuredtext en"
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
 
-logger = __import__('logging').getLogger(__name__)
-
-import time
+# stdlib imports
 from datetime import datetime
-
-from pytz import UTC
-
-from zope import interface
-
-from zope.cachedescriptors.property import CachedProperty
-
-from zc.catalog.index import DateTimeNormalizer
-
-from zc.catalog.interfaces import INormalizer
+import time
 
 from persistent import Persistent
+from pytz import UTC
+from zc.catalog.index import DateTimeNormalizer
+from zc.catalog.interfaces import INormalizer
+from zope import interface
+from zope.cachedescriptors.property import CachedProperty
 
 from nti.zope_catalog.mixin import AbstractNormalizerMixin as _AbstractNormalizerMixin
-
 from nti.zope_catalog.number import FloatTo64BitIntNormalizer as TimestampTo64BitIntNormalizer
+
+__docformat__ = "restructuredtext en"
 
 
 @interface.implementer(INormalizer)
@@ -40,10 +36,15 @@ class TimestampNormalizer(Persistent, _AbstractNormalizerMixin):
     # These values wind up corresponding to the
     # indices in the timetuple
 
+    #: Constant for normalizing to days.
     RES_DAY = 0
+    #: Constant for normalizing to hours.
     RES_HOUR = 1
+    #: Constant for normalizing to minutes.
     RES_MINUTE = 2
+    #: Constant for normalizing to seconds.
     RES_SECOND = 3
+    #: Constant for normalizing to microseconds.
     RES_MICROSECOND = 4
 
     def __init__(self, resolution=RES_MINUTE):
@@ -86,6 +87,8 @@ class TimestampToNormalized64BitIntNormalizer(Persistent,
     by default minutes, and then converts them to integers
     that can be stored in an :class:`.IntegerAttributeIndex`.
     """
+
+    # TODO: Extend TimestampNormalizer and simplify.
 
     def __init__(self, resolution=TimestampNormalizer.RES_MINUTE):
         self.resolution = resolution
