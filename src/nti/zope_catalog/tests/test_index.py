@@ -1,37 +1,40 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from __future__ import print_function, absolute_import, division
-__docformat__ = "restructuredtext en"
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
 
-# disable: accessing protected members, too many methods
-# pylint: disable=W0212,R0904
-
-from hamcrest import is_
-from hamcrest import is_not
-from hamcrest import raises
-from hamcrest import calling
-from hamcrest import has_key
-from hamcrest import contains
-from hamcrest import has_length
-from hamcrest import assert_that
-from hamcrest import has_property
-from hamcrest import none
-
+# stdlib imports
 import unittest
 
 import BTrees
 
-from nti.zope_catalog.index import stemmer_lexicon
-
 from nti.zope_catalog.index import AttributeTextIndex
+from nti.zope_catalog.index import CaseInsensitiveAttributeFieldIndex
 from nti.zope_catalog.index import IntegerAttributeIndex
+from nti.zope_catalog.index import IntegerValueIndex
 from nti.zope_catalog.index import NormalizingFieldIndex
 from nti.zope_catalog.index import NormalizingKeywordIndex
-from nti.zope_catalog.index import CaseInsensitiveAttributeFieldIndex
-from nti.zope_catalog.index import ValueIndex
 from nti.zope_catalog.index import SetIndex
-from nti.zope_catalog.index import IntegerValueIndex
+from nti.zope_catalog.index import ValueIndex
+from nti.zope_catalog.index import stemmer_lexicon
+
+from hamcrest import assert_that
+from hamcrest import calling
+from hamcrest import contains
+from hamcrest import has_key
+from hamcrest import has_length
+from hamcrest import has_property
+from hamcrest import is_
+from hamcrest import is_not
+from hamcrest import none
+from hamcrest import raises
+
+__docformat__ = "restructuredtext en"
+
+# disable: accessing protected members, too many methods
+# pylint: disable=W0212,R0904
 
 family = BTrees.family64
 
@@ -211,11 +214,11 @@ class TestNormalizingKeywordIndex(unittest.TestCase):
         assert_that(res, contains(3))
 
         res = index.apply({'query': ['aizen', 'kuchiki'],
-                                 'operator': 'or'})
+                           'operator': 'or'})
         assert_that(res, has_length(2))
 
         res = index.apply({'query': ['aizen', 'kuchiki'],
-                                 'operator': 'and'})
+                           'operator': 'and'})
         assert_that(res, has_length(0))
 
         res = index.apply('aizen')

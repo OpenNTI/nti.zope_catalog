@@ -1,24 +1,27 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from __future__ import print_function, absolute_import, division
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
+# stdlib imports
+import unittest
+
+from nti.zope_catalog.index import IntegerValueIndex
+from nti.zope_catalog.index import NormalizationWrapper
+from nti.zope_catalog.number import FloatTo64BitIntNormalizer
+from nti.zope_catalog.number import FloatToNormalized64BitIntNormalizer
+from nti.zope_catalog.number import number_to_64bit_int
+
+from hamcrest import assert_that
+from hamcrest import contains
+from hamcrest import is_
+
 __docformat__ = "restructuredtext en"
 
 # disable: accessing protected members, too many methods
 # pylint: disable=W0212,R0904
-
-from hamcrest import is_
-from hamcrest import contains
-from hamcrest import assert_that
-
-import unittest
-
-from nti.zope_catalog.number import number_to_64bit_int
-from nti.zope_catalog.number import FloatTo64BitIntNormalizer
-from nti.zope_catalog.number import FloatToNormalized64BitIntNormalizer
-
-from nti.zope_catalog.index import IntegerValueIndex
-from nti.zope_catalog.index import NormalizationWrapper
 
 
 class TestNumber(unittest.TestCase):

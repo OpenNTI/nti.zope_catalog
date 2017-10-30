@@ -1,29 +1,31 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from __future__ import print_function, absolute_import, division
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
+# stdlib imports
+import datetime
+import time
+import unittest
+
+from nti.zodb.containers import time_to_64bit_int
+from nti.zope_catalog.datetime import TimestampNormalizer
+from nti.zope_catalog.datetime import TimestampTo64BitIntNormalizer
+from nti.zope_catalog.datetime import TimestampToNormalized64BitIntNormalizer
+from nti.zope_catalog.index import IntegerValueIndex
+from nti.zope_catalog.index import NormalizationWrapper
+
+from hamcrest import assert_that
+from hamcrest import contains
+from hamcrest import contains_inanyorder
+from hamcrest import is_
+
 __docformat__ = "restructuredtext en"
 
 # disable: accessing protected members, too many methods
 # pylint: disable=W0212,R0904
-
-from hamcrest import is_
-from hamcrest import contains
-from hamcrest import assert_that
-from hamcrest import contains_inanyorder
-
-import time
-import datetime
-import unittest
-
-from nti.zodb.containers import time_to_64bit_int
-
-from nti.zope_catalog.datetime import TimestampNormalizer
-from nti.zope_catalog.datetime import TimestampTo64BitIntNormalizer
-from nti.zope_catalog.datetime import TimestampToNormalized64BitIntNormalizer
-
-from nti.zope_catalog.index import IntegerValueIndex
-from nti.zope_catalog.index import NormalizationWrapper
 
 
 class TestDatetime(unittest.TestCase):
