@@ -5,26 +5,24 @@ Interfaces related to catalogs.
 
 """
 
-from __future__ import print_function, absolute_import, division
-__docformat__ = "restructuredtext en"
-
-logger = __import__('logging').getLogger(__name__)
-
-from zope import interface
-
-from zope.catalog.interfaces import ICatalog
-from zope.catalog.interfaces import INoAutoIndex
-from zope.catalog.interfaces import INoAutoReindex
-
-from zope.catalog.field import IFieldIndex as IZCVFieldIndex
-
-from zope.catalog.keyword import IKeywordIndex as IZCKeywordIndex
-
-from zope.catalog.text import ITextIndex as IZCTextIndex
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
 
 from zc.catalog.interfaces import ISetIndex as IZCSetIndex
 from zc.catalog.interfaces import IValueIndex as IZCValueIndex
+from zope import interface
+from zope.catalog.field import IFieldIndex as IZCVFieldIndex
+from zope.catalog.interfaces import ICatalog
+from zope.catalog.interfaces import INoAutoIndex
+from zope.catalog.interfaces import INoAutoReindex
+from zope.catalog.keyword import IKeywordIndex as IZCKeywordIndex
+from zope.catalog.text import ITextIndex as IZCTextIndex
 
+__docformat__ = "restructuredtext en"
+
+# pylint:disable=inherit-non-class,no-self-argument,no-method-argument
+# pylint:disable=too-many-ancestors
 
 class IZipMixin(interface.Interface):
 
@@ -89,12 +87,12 @@ class IMetadataCatalog(ICatalog):
     The nti metadata catalog.
     """
 
-    def index_doc(self, iid, ob):
+    def index_doc(iid, ob):
         """
         This may or may not update our underlying index.
         """
 
-    def force_index_doc(self, iid, ob):
+    def force_index_doc(iid, ob):
         """
         Force the underlying index to update.
         """
