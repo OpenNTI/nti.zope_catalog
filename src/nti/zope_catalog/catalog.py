@@ -50,6 +50,8 @@ class ResultSet(object):
     def __len__(self):
         return len(self.uids)
 
+    __length_hint__ = __len__
+
     def get_object(self, uid):
         if self.ignore_invalid:
             obj = self.uidutil.queryObject(uid)
@@ -70,10 +72,7 @@ class ResultSet(object):
     iter_pairs = items
 
     def __iter__(self):
-        for _, obj in self.items():
-            yield obj
-
-    # TODO: Implement __length_hint__
+        return (item[1] for item in self.items())
 
     def count(self):
         """
@@ -84,11 +83,7 @@ class ResultSet(object):
         is corrupt and needs fixed. If you see this, this is a strong
         signal that your code is broken.
         """
-        # TODO: Simplify: sum(1 for _ in self.items)
-        result = 0
-        for _, _ in self.items():
-            result += 1
-        return result
+        return sum(1 for _ in self.items())
 
 
 class Catalog(_ZCatalog):

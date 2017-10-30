@@ -100,10 +100,10 @@ class TestResultSet(unittest.TestCase):
                 return self
 
         uids = UIDS()
-        r = ResultSet((1,), uids)
-        assert_that(list(r), is_([uids]))
-        assert_that(r, has_length(1))
-        assert_that(r.count(), is_(1))
+        r = ResultSet((1, 2, 3), uids)
+        assert_that(list(r), is_([uids, uids, uids]))
+        assert_that(r, has_length(3))
+        assert_that(r.count(), is_(3))
 
     def test_broken(self):
         # The functionality itself is broken.
