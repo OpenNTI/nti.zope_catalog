@@ -14,10 +14,14 @@ import warnings
 
 import BTrees
 from ZODB.POSException import POSError
+from zope import interface
 from zope.catalog.catalog import Catalog as _ZCatalog
+from zope.catalog.interfaces import ICatalog
 
 from nti.zodb import isBroken
-from nti.zope_catalog.interfaces import INoAutoIndex
+from .interfaces import INoAutoIndex
+from .interfaces import IDeferredCatalog
+
 
 __docformat__ = "restructuredtext en"
 
@@ -149,3 +153,17 @@ class Catalog(_ZCatalog):
                 except to_catch as e:
                     logger.error("Error indexing object %s(%s); %s",
                                  type(obj), uid, e)
+
+class DeferredCatalog(Catalog):
+    """
+    An implementation of :class:`nti.zope_catalog.interfaces.IDeferredCatalog`.
+    """
+
+_implemented_by = list(interface.implementedBy(DeferredCatalog).interfaces())
+_implemented_by.remove(ICatalog)
+_implemented_by.insert(0, IDeferredCatalog)
+
+interface.classImplementsOnly(DeferredCatalog,
+                              *_implemented_by)
+
+del _implemented_by
