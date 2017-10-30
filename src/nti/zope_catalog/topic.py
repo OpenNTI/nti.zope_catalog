@@ -5,36 +5,34 @@ Support for writing topic indexes and the filtered sets that go with them.
 
 """
 
-from __future__ import print_function, absolute_import, division
-__docformat__ = "restructuredtext en"
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
 
-logger = __import__('logging').getLogger(__name__)
-
+# stdlib imports
 import collections
 
+import BTrees
+from zc.catalog.extentcatalog import FilterExtent
 from zope import interface
-
 from zope.catalog.interfaces import ICatalogIndex
-
 from zope.container.contained import Contained
-
 from zope.index.topic import TopicIndex as _TopicIndex
 from zope.index.topic.filter import FilteredSetBase
 
-from zc.catalog.extentcatalog import FilterExtent
+__docformat__ = "restructuredtext en"
 
-import BTrees
 
 
 @interface.implementer(ICatalogIndex)
 class TopicIndex(_TopicIndex, Contained):
     """
-    A topic index that implements IContained and ICatalogIndex for use with
-    catalog indexes.
+    A topic index that implements ``IContained`` and ``ICatalogIndex``
+    for use with catalog indexes.
 
     To summarize, a topic index is a way to divide objects into a set
-    of groups (aka topics). The groups are determined by the contents
-    of this object, which are called filters. Each filter is
+    of groups (aka topics).  The groups are determined by the contents
+    of this object, which are called filters.  Each filter is
     conceptually like a mini-index itself, but in practice most of
     them are simply used to store group membership when some criteria
     are met; for that purpose the :class:`.ExtentFilteredSet` is
@@ -56,12 +54,12 @@ class TopicIndex(_TopicIndex, Contained):
         """
         Queries this index and returns the set of matching docids.
 
-        The `query` can be in one of several formats:
+        The *query* can be in one of several formats:
 
         * A single string or a list of strings. In that case,
           docids that are in all the given topics (by id) are returned.
           This is equivalent to zc.catalog-style ``all_of`` operator.
-        * A dictionary containing exactly two keys, ``operator``
+        * A mapping containing exactly two keys, ``operator``
           and ``query``. The value for ``operator`` is either
           ``and`` or ``or`` to specify intersection or union, respectively.
           The value for query is again a string or list of strings.
@@ -102,16 +100,16 @@ class ExtentFilteredSet(FilteredSetBase):
         """
         Create a new filtered extent.
 
-        :param filter: A callable object of three parameters: this
-                object, the docid, and the document. This will be
-                available as the value of :meth:`getExpression`.
-                If you pass `None`, you can override getExpression
-                yourself.
+        :param expr: A callable object of three parameters: this
+            object, the docid, and the document. This will be
+            available as the value of :meth:`getExpression`.
+            If you pass ``None``, you can override getExpression
+            yourself.
 
-                *Remember* that this is a persistent object, so if you
+            .. caution:: This is often a persistent object, so if you
                 pass a filter, it must be picklable. In general and for
                 the most flexibility, instead of passing something like
-                `IFoo.providedBy`, instead pass a global (function) object
+                ``IFoo.providedBy``, instead pass a global (function) object
                 in your own module.
         """
         super(ExtentFilteredSet, self).__init__(fid, expr, family=family)
