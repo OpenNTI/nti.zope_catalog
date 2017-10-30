@@ -73,6 +73,8 @@ class ResultSet(object):
         for _, obj in self.items():
             yield obj
 
+    # TODO: Implement __length_hint__
+
     def count(self):
         """
         How many objects are there?
@@ -82,6 +84,7 @@ class ResultSet(object):
         is corrupt and needs fixed. If you see this, this is a strong
         signal that your code is broken.
         """
+        # TODO: Simplify: sum(1 for _ in self.items)
         result = 0
         for _, _ in self.items():
             result += 1
