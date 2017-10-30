@@ -5,22 +5,23 @@ Catalog extensions.
 
 """
 
-from __future__ import print_function, absolute_import, division
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
+# stdlib imports
+import warnings
+
+import BTrees
+from ZODB.POSException import POSError
+from zope.catalog.catalog import Catalog as _ZCatalog
+
+from nti.zodb import isBroken
+from nti.zope_catalog.interfaces import INoAutoIndex
+
 __docformat__ = "restructuredtext en"
 
 logger = __import__('logging').getLogger(__name__)
-
-import warnings
-
-from zope.catalog.catalog import Catalog as _ZCatalog
-
-from ZODB.POSException import POSError
-
-import BTrees
-
-from nti.zodb import isBroken
-
-from nti.zope_catalog.interfaces import INoAutoIndex
 
 
 class ResultSet(object):
@@ -93,7 +94,8 @@ class Catalog(_ZCatalog):
 
     * When manually calling :meth:`updateIndex` or
       :meth:`updateIndexes`, objects that provide
-      :class:`.INoAutoIndex` are ignored. Note that if you have
+      :class:`nti.zope_catalog.interfaces.INoAutoIndex` are ignored.
+      Note that if you have
       previously indexed objects that now provide this (i.e., class
       definition has changed) you need to :meth:`clear` the catalog
       first for this to be effective.
@@ -124,6 +126,9 @@ class Catalog(_ZCatalog):
     # disable warning about different number of arguments than superclass
     # pylint: disable=I0011,W0221
     def updateIndex(self, index, ignore_persistence_exceptions=True):
+        """
+        Update a single index.
+        """
         to_catch = self._PERSISTENCE_EXCEPTIONS if ignore_persistence_exceptions else ()
         for uid, obj in self._visitSublocations():
             try:
@@ -133,6 +138,9 @@ class Catalog(_ZCatalog):
                              type(obj), uid, e)
 
     def updateIndexes(self, ignore_persistence_exceptions=False):
+        """
+        Update all indexes in this catalog.
+        """
         # avoid the btree iterator for each object
         indexes = list(self.values())
         to_catch = self._PERSISTENCE_EXCEPTIONS if ignore_persistence_exceptions else ()
