@@ -2,7 +2,7 @@
  Changes
 =========
 
-2.0.0 (unreleased)
+2.0.0 (2017-11-05)
 ==================
 
 - Rename ``TimestampToNormalized64BitIntNormalizer`` to
