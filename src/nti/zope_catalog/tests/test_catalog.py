@@ -15,6 +15,7 @@ from hamcrest import has_length
 from hamcrest import is_
 from hamcrest import none
 
+
 import BTrees
 from zope import interface
 from zope.annotation.interfaces import IAttributeAnnotatable
@@ -24,6 +25,7 @@ from zope.index.interfaces import IIndexSearch
 from zope.container.interfaces import IBTreeContainer
 from zope.location.interfaces import ILocation
 from persistent.interfaces import IPersistent
+from persistent import Persistent
 
 from nti.testing.matchers import validly_provides
 from nti.testing.matchers import verifiably_provides
@@ -50,13 +52,22 @@ class Content(object):
     pass
 
 @interface.implementer(INoAutoIndex)
-class NoIndexContent(object):
+class NoIndexContent(Persistent):
     pass
 
 class MockCatalog(Catalog):
+
+    def __init__(self):
+        super(MockCatalog, self).__init__()
+        self.mock_catalog_data = [
+            (1, Content()),
+            (2, NoIndexContent())
+        ]
+
     def _visitAllSublocations(self):
-        yield 1, Content()
-        yield 2, NoIndexContent()
+        for thing in self.mock_catalog_data:
+            yield thing
+
 
 class IDNE(interface.Interface): # pylint:disable=inherit-non-class
     "Not implemented by anything"
@@ -103,6 +114,55 @@ class TestCatalogFull(TestCatalog):
         assert_that(locs, has_length(1))
         assert_that(locs[0],
                     contains(1, is_(Content)))
+
+    def test_visit_sublocations_check_class_only(self):
+        class MyException(Exception):
+            pass
+
+        @interface.implementer(INoAutoIndex)
+        class NoIndex(object):
+            # Deliberately break testing providedBy on instances.
+            # This also proves that we don't unnecessarily activate
+            # persistent objects, because they hook in at ``__getattribute__``
+            def __getattribute__(self, name):
+                raise MyException
+
+        noindex = NoIndex()
+        with self.assertRaises(MyException):
+            INoAutoIndex.providedBy(noindex)
+
+        cat = self._makeOne()
+        cat.mock_catalog_data.append((3, noindex))
+
+        locs = list(cat._visitSublocations())
+        assert_that(locs, has_length(1))
+        assert_that(locs[0],
+                    contains(1, is_(Content)))
+
+    def test_visit_sublocations_check_class_only_not_activate(self):
+        from ZODB.DB import DB
+        from ZODB.DemoStorage import DemoStorage
+        import transaction
+
+        cat = self._makeOne()
+        db = DB(DemoStorage())
+        self.addCleanup(db.close)
+        transaction.begin()
+        conn = db.open()
+        self.addCleanup(conn.close)
+        conn.root.cat = cat
+        transaction.commit()
+
+        transaction.begin()
+        conn.cacheMinimize()
+        assert_that(conn.root.cat.mock_catalog_data[1][1], is_(NoIndexContent))
+        assert_that(conn.root.cat.mock_catalog_data[1][1]._p_status, is_('ghost'))
+        locs = list(cat._visitSublocations())
+        assert_that(locs, has_length(1))
+        assert_that(locs[0],
+                    contains(1, is_(Content)))
+        # Still a ghost
+        assert_that(conn.root.cat.mock_catalog_data[1][1]._p_status, is_('ghost'))
 
     def test_update_indexes_with_error(self):
         from zope.testing.loggingsupport import InstalledHandler
