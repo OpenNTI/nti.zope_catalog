@@ -115,8 +115,13 @@ class Catalog(_ZCatalog):
         return super(Catalog, self)._visitSublocations()
 
     def _visitSublocations(self):
+        no_auto_inst = INoAutoIndex.providedBy
+        no_auto_class = INoAutoIndex.implementedBy
+
         for uid, obj in self._visitAllSublocations():
-            if INoAutoIndex.providedBy(obj):
+            # Try to avoid activating the object if not necessary
+            # by first checking if the class is INoAutoIndex.
+            if no_auto_class(type(obj)) or no_auto_inst(obj):
                 continue
             yield uid, obj
 

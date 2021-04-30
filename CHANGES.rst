@@ -17,6 +17,10 @@
 
 - Require ZODB 5 in order to use the new ``prefetch()`` method.
 
+- When updating indexes in a catalog, first check if the type of each
+  object to be visited implements ``INoAutoIndex``. If it does, we can
+  avoid prematurely activating persistent ghost objects. See `issue 8
+  <https://github.com/NextThought/nti.zope_catalog/issues/8>`_.
 
 2.0.0 (2017-11-05)
 ==================
