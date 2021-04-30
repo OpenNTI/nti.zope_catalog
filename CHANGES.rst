@@ -15,11 +15,18 @@
   Also note that both PyPy 3.6 and 3.7 (7.3.4) are known to crash when
   running the test suite. PyPy2 7.3.4 runs the test suite fine.
 
-- Require ZODB 5 in order to use the new ``prefetch()`` method.
-
 - When updating indexes in a catalog, first check if the type of each
   object to be visited implements ``INoAutoIndex``. If it does, we can
   avoid prematurely activating persistent ghost objects. See `issue 8
+  <https://github.com/NextThought/nti.zope_catalog/issues/8>`_.
+
+- Require ZODB 5 in order to use the new ``prefetch()`` method.
+
+- When adding or updating an index in a catalog, use ZODB's prefetch
+  method to grab chunks of object state data from the database. This
+  can be substantially faster than making requests one at a time. This
+  introduces a new class ``CatalogPrefetchIterator`` that may be
+  useful in other circumstances. See `issue 7
   <https://github.com/NextThought/nti.zope_catalog/issues/8>`_.
 
 2.0.0 (2017-11-05)

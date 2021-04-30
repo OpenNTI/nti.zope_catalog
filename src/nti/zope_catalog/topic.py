@@ -12,7 +12,7 @@ from __future__ import print_function
 # stdlib imports
 try:
     from collections.abc import Mapping
-except ImportError:
+except ImportError: # pragma: no cover
     from collections import Mapping
 
 import BTrees

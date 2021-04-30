@@ -55,6 +55,9 @@ class Content(object):
 class NoIndexContent(Persistent):
     pass
 
+class PersistentContent(Persistent):
+    pass
+
 class MockCatalog(Catalog):
 
     def __init__(self):
@@ -116,6 +119,7 @@ class TestCatalogFull(TestCatalog):
                     contains(1, is_(Content)))
 
     def test_visit_sublocations_check_class_only(self):
+        from zope.interface import alsoProvides
         class MyException(Exception):
             pass
 
@@ -133,6 +137,9 @@ class TestCatalogFull(TestCatalog):
 
         cat = self._makeOne()
         cat.mock_catalog_data.append((3, noindex))
+        content = PersistentContent()
+        alsoProvides(content, INoAutoIndex)
+        cat.mock_catalog_data.append((4, content))
 
         locs = list(cat._visitSublocations())
         assert_that(locs, has_length(1))
@@ -143,8 +150,13 @@ class TestCatalogFull(TestCatalog):
         from ZODB.DB import DB
         from ZODB.DemoStorage import DemoStorage
         import transaction
+        from zope.interface import alsoProvides
 
         cat = self._makeOne()
+        content = PersistentContent()
+        alsoProvides(content, INoAutoIndex)
+        cat.mock_catalog_data.append((4, content))
+
         db = DB(DemoStorage())
         self.addCleanup(db.close)
         transaction.begin()
@@ -157,12 +169,17 @@ class TestCatalogFull(TestCatalog):
         conn.cacheMinimize()
         assert_that(conn.root.cat.mock_catalog_data[1][1], is_(NoIndexContent))
         assert_that(conn.root.cat.mock_catalog_data[1][1]._p_status, is_('ghost'))
+        assert_that(conn.root.cat.mock_catalog_data[-1][1], is_(PersistentContent))
+        assert_that(conn.root.cat.mock_catalog_data[-1][1]._p_status, is_('ghost'))
+
         locs = list(cat._visitSublocations())
         assert_that(locs, has_length(1))
         assert_that(locs[0],
                     contains(1, is_(Content)))
         # Still a ghost
         assert_that(conn.root.cat.mock_catalog_data[1][1]._p_status, is_('ghost'))
+        # But the one that alsoProvides() had to wake up
+        assert_that(conn.root.cat.mock_catalog_data[-1][1]._p_status, is_('saved'))
 
     def test_update_indexes_with_error(self):
         from zope.testing.loggingsupport import InstalledHandler
@@ -236,3 +253,74 @@ class TestConfigure(unittest.TestCase):
         # We don't actually verify anything it does...because it
         # does nothing
         return
+
+
+class TestCatalogPrefetchIterator(unittest.TestCase):
+
+    def _makeOne(self, iterable, chunk_size):
+        from ..catalog import CatalogPrefetchIterator
+        return CatalogPrefetchIterator(iterable, chunk_size)
+
+    class Jar(object):
+        prefetched = ()
+
+        databases = ()
+
+        def db(self):
+            return self
+
+        def prefetch(self, oids):
+            self.prefetched += (oids,)
+
+    class Obj(object):
+        def __init__(self, jar=None, oid=None):
+            self._p_jar = jar
+            self._p_oid = oid
+
+    def test_prefetch_singledb(self):
+        jar = self.Jar()
+        inst = self._makeOne([], 0)
+
+        chunk = [
+            (1, self.Obj()),
+            (2, self),
+            (3, object()),
+            (4, Persistent()),
+            (5, self.Obj(jar, 1)),
+            (5, self.Obj(jar, 2)),
+            (5, self.Obj(jar, 3)),
+        ]
+
+        inst._prefetch(chunk)
+
+        assert_that(jar.prefetched, is_(({1, 2, 3},)))
+        assert_that(inst._prefetch, is_(inst._prefetch_singledb))
+
+    def test_prefetch_multidb(self):
+        jar1 = self.Jar()
+        jar2 = self.Jar()
+        jar3 = self.Jar()
+        databases = {'1': jar1, '2': jar2, '3': jar3}
+        jar1.databases = jar2.databases = jar3.databases = databases
+        inst = self._makeOne([], 0)
+
+        chunk = [
+            (1, self.Obj(jar3)),
+            (2, self),
+            (3, object()),
+            (4, Persistent()),
+            (5, self.Obj(jar1, 1)),
+            (5, self.Obj(jar2, 2)),
+            (5, self.Obj(jar3, 3)),
+            (5, self.Obj(jar3, 4)),
+            (5, self.Obj(jar2, 5)),
+            (5, self.Obj(jar3, 5)), # dup, different jar
+            (5, self.Obj(jar3, 5)), # dup, same jar
+        ]
+
+        inst._prefetch(chunk)
+
+        assert_that(inst._prefetch, is_(inst._prefetch_multidb))
+        assert_that(jar1.prefetched, is_(({1,},)))
+        assert_that(jar2.prefetched, is_(({2, 5},)))
+        assert_that(jar3.prefetched, is_(({3, 4, 5},)))
