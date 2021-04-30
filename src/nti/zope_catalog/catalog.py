@@ -64,7 +64,7 @@ class ResultSet(object):
         else:
             obj = self.uidutil.getObject(uid)
         if obj is None:
-            logger.warn("Your database is corrupted. There is no object for id %d", uid)
+            logger.warning("Your database is corrupted. There is no object for id %d", uid)
         return obj
     getObject = get_object
 

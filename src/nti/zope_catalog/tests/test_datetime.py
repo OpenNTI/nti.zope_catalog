@@ -10,17 +10,18 @@ import datetime
 import time
 import unittest
 
+from hamcrest import assert_that
+from hamcrest import contains_exactly as contains
+from hamcrest import contains_inanyorder
+from hamcrest import is_
+
+
 from nti.zodb.containers import time_to_64bit_int
 from nti.zope_catalog.datetime import TimestampNormalizer
 from nti.zope_catalog.datetime import TimestampTo64BitIntNormalizer
 from nti.zope_catalog.datetime import TimestampToNormalized64BitIntNormalizer
 from nti.zope_catalog.index import IntegerValueIndex
 from nti.zope_catalog.index import NormalizationWrapper
-
-from hamcrest import assert_that
-from hamcrest import contains
-from hamcrest import contains_inanyorder
-from hamcrest import is_
 
 __docformat__ = "restructuredtext en"
 

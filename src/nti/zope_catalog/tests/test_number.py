@@ -8,15 +8,15 @@ from __future__ import print_function
 # stdlib imports
 import unittest
 
+from hamcrest import assert_that
+from hamcrest import contains_exactly as contains
+from hamcrest import is_
+
 from nti.zope_catalog.index import IntegerValueIndex
 from nti.zope_catalog.index import NormalizationWrapper
 from nti.zope_catalog.number import FloatTo64BitIntNormalizer
 from nti.zope_catalog.number import FloatToNormalized64BitIntNormalizer
 from nti.zope_catalog.number import number_to_64bit_int
-
-from hamcrest import assert_that
-from hamcrest import contains
-from hamcrest import is_
 
 __docformat__ = "restructuredtext en"
 

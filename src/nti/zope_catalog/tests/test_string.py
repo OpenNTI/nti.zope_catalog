@@ -8,12 +8,14 @@ from __future__ import print_function
 # stdlib imports
 import unittest
 
-from nti.zope_catalog.index import NormalizationWrapper
-from nti.zope_catalog.string import StringTokenNormalizer
 
 from hamcrest import assert_that
-from hamcrest import contains
+from hamcrest import contains_exactly as contains
 from hamcrest import is_
+
+
+from nti.zope_catalog.index import NormalizationWrapper
+from nti.zope_catalog.string import StringTokenNormalizer
 
 __docformat__ = "restructuredtext en"
 

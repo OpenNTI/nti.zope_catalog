@@ -10,7 +10,10 @@ from __future__ import division
 from __future__ import print_function
 
 # stdlib imports
-import collections
+try:
+    from collections.abc import Mapping
+except ImportError:
+    from collections import Mapping
 
 import BTrees
 from zc.catalog.extentcatalog import FilterExtent
@@ -69,7 +72,7 @@ class TopicIndex(_TopicIndex, Contained):
         """
         # The first two cases are handled natively. The later case,
         # zc.catalog style, we handle by converting.
-        if isinstance(query, collections.Mapping):
+        if isinstance(query, Mapping):
             if 'any_of' in query:
                 query = {'operator': 'or', 'query': query['any_of']}
             elif 'all_of' in query:
