@@ -2,10 +2,20 @@
  Changes
 =========
 
-2.0.1 (unreleased)
+3.0.0 (unreleased)
 ==================
 
-- Nothing changed yet.
+- Add support for Python 3.7, 3.8 and 3.9.
+
+  Note that ``zopyx.txng3.ext`` version 4.0.0, the current version at
+  this writing, may or may not build on CPython 3, depending on how
+  your compiler and compiler options treat undefined functions.
+  See `this issue <https://github.com/zopyx/zopyx.txng3.ext/issues/10>`_.
+
+  Also note that both PyPy 3.6 and 3.7 (7.3.4) are known to crash when
+  running the test suite. PyPy2 7.3.4 runs the test suite fine.
+
+- Require ZODB 5 in order to use the new ``prefetch()`` method.
 
 
 2.0.0 (2017-11-05)

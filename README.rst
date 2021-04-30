@@ -10,8 +10,8 @@
         :target: https://pypi.org/project/nti.zope_catalog/
         :alt: Supported Python versions
 
-.. image:: https://travis-ci.org/NextThought/nti.zope_catalog.svg?branch=master
-        :target: https://travis-ci.org/NextThought/nti.zope_catalog
+.. image:: https://github.com/NextThought/nti.zope_catalog/workflows/tests/badge.svg
+        :target: https://github.com/NextThought/nti.zope_catalog/actions?query=workflow%3Atests
 
 .. image:: https://coveralls.io/repos/github/NextThought/nti.zope_catalog/badge.svg?branch=master
         :target: https://coveralls.io/github/NextThought/nti.zope_catalog?branch=master

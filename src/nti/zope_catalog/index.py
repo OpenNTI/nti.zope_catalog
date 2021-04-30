@@ -13,7 +13,12 @@ from __future__ import division
 from __future__ import print_function
 
 # stdlib imports
-import collections
+try:
+    from collections.abc import Mapping
+    from collections.abc import Iterable
+except ImportError:
+    from collections import Mapping
+    from collections import Iterable
 
 import BTrees
 import six
@@ -44,7 +49,7 @@ logger = __import__('logging').getLogger(__name__)
 
 def is_nonstr_iter(x):
     return not isinstance(x, six.string_types) \
-        and isinstance(x, collections.Iterable)
+        and isinstance(x, Iterable)
 
 
 def convertQuery(query):
@@ -216,8 +221,8 @@ class NormalizingKeywordIndex(_SetZipMixin,
 
     family = BTrees.family64
 
-    def _parseQuery(self, query):
-        if isinstance(query, collections.Mapping):
+    def _parseQuery(self, query): # pylint:disable=too-many-branches
+        if isinstance(query, Mapping):
             if 'query' in query:  # support legacy
                 query_type = query.get('operator') or 'and'
                 query = query['query']

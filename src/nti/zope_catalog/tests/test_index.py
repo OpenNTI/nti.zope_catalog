@@ -10,6 +10,17 @@ import unittest
 
 import BTrees
 
+from hamcrest import assert_that
+from hamcrest import calling
+from hamcrest import contains_exactly as contains
+from hamcrest import has_key
+from hamcrest import has_length
+from hamcrest import has_property
+from hamcrest import is_
+from hamcrest import is_not
+from hamcrest import none
+from hamcrest import raises
+
 from nti.zope_catalog.index import AttributeTextIndex
 from nti.zope_catalog.index import CaseInsensitiveAttributeFieldIndex
 from nti.zope_catalog.index import IntegerAttributeIndex
@@ -20,16 +31,6 @@ from nti.zope_catalog.index import SetIndex
 from nti.zope_catalog.index import ValueIndex
 from nti.zope_catalog.index import stemmer_lexicon
 
-from hamcrest import assert_that
-from hamcrest import calling
-from hamcrest import contains
-from hamcrest import has_key
-from hamcrest import has_length
-from hamcrest import has_property
-from hamcrest import is_
-from hamcrest import is_not
-from hamcrest import none
-from hamcrest import raises
 
 __docformat__ = "restructuredtext en"
 

@@ -8,10 +8,22 @@ from __future__ import print_function
 # stdlib imports
 import unittest
 
+from hamcrest import assert_that
+from hamcrest import contains_exactly as contains
+from hamcrest import is_not as does_not
+from hamcrest import has_length
+from hamcrest import is_
+from hamcrest import none
+
 import BTrees
 from zope import interface
 from zope.annotation.interfaces import IAttributeAnnotatable
 from zope.catalog.interfaces import ICatalog
+
+from zope.index.interfaces import IIndexSearch
+from zope.container.interfaces import IBTreeContainer
+from zope.location.interfaces import ILocation
+from persistent.interfaces import IPersistent
 
 from nti.testing.matchers import validly_provides
 from nti.testing.matchers import verifiably_provides
@@ -22,19 +34,9 @@ from nti.zope_catalog.catalog import ResultSet
 from nti.zope_catalog.interfaces import IDeferredCatalog
 from nti.zope_catalog.interfaces import INoAutoIndex
 
-from zope.index.interfaces import IIndexSearch
-from zope.container.interfaces import IBTreeContainer
-from zope.location.interfaces import ILocation
-from persistent.interfaces import IPersistent
 
 from . import NTIZopeCatalogLayer
 
-from hamcrest import assert_that
-from hamcrest import contains
-from hamcrest import is_not as does_not
-from hamcrest import has_length
-from hamcrest import is_
-from hamcrest import none
 
 __docformat__ = "restructuredtext en"
 
@@ -56,7 +58,7 @@ class MockCatalog(Catalog):
         yield 1, Content()
         yield 2, NoIndexContent()
 
-class IDNE(interface.Interface):
+class IDNE(interface.Interface): # pylint:disable=inherit-non-class
     "Not implemented by anything"
 
 class TestCatalog(unittest.TestCase):

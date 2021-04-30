@@ -34,6 +34,7 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.intersphinx',
     'sphinx.ext.viewcode',
+    'sphinx.ext.doctest',
     'repoze.sphinx.autointerface',
 ]
 
@@ -177,6 +178,12 @@ extlinks = {
     'pr': ('https://github.com/NextThought/nti.zope_catalog/pull/%s',
            'pull request #')}
 
-autodoc_default_flags = ['members', 'show-inheritance']
+# Sphinx 1.8+ prefers this to `autodoc_default_flags`. It's documented that
+# either True or None mean the same thing as just setting the flag, but
+# only None works in 1.8 (True works in 2.0)
+autodoc_default_options = {
+    'members': None,
+    'show-inheritance': None,
+}
 autoclass_content = 'both'
 autodoc_member_order = 'bysource'

@@ -1,6 +1,8 @@
 [run]
 source = nti.zope_catalog
-
+# New in 5.0; required for the GHA coveralls submission.
+# Perhaps this obsoletes the source section in [paths]?
+relative_files = True
 
 [report]
 exclude_lines =
