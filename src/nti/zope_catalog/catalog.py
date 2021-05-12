@@ -10,6 +10,8 @@ from __future__ import division
 from __future__ import print_function
 
 # stdlib imports
+import collections
+import itertools
 import warnings
 
 import BTrees
@@ -90,6 +92,114 @@ class ResultSet(object):
         return sum(1 for _ in self.items())
 
 
+class CatalogPrefetchIterator(object):
+    """
+    Given an iterator of ``(intid, object)``:
+
+        - Breaks the iterator into chunks of a given size;
+
+        - Detects any persistent objects in the chunk connected to a
+          jar (this is done by checking for a ``_p_jar``);
+
+        - Groups those objects by jar if needed (supporting multiple
+          databases, because `ZODB 5 currently does not correctly do
+          this <https://github.com/zopefoundation/ZODB/issues/273>`_);
+
+        - Asks each jar to prefetch the given objects.
+
+        - Finally, iterates over the chunk.
+
+    This object is intended to be used with the ``_visitSublocations`` method
+    of a catalog, but may be useful in other cases.
+
+    For example, one could enhance a standard :class:`zope.catalog.catalog.ResultSet`
+    like so (note this won't work for the :class:`ResultSet` defined here)::
+
+        from zope.catalog.catalog import ResultSet
+        class PrefetchedResultSet(ResultSet, object):
+            def __iter__(self):
+                iterable = (uid, self.uidutil.getObject(uid) for uid in self.uids)
+                for _, obj in CatalogPrefetchIterator(iterable, 512):
+                    yield obj
+
+
+    .. versionadded:: 3.0
+    """
+
+    def __init__(self, iterable, chunk_size):
+        self.iterable = iter(iterable) # work if they pass a concrete collection
+        self.chunk_size = chunk_size
+        self._chunk = None
+        # The common case is that we only ever encounter one database;
+        # the first time we see any jar, we'll know if we need to divy
+        # objects between different jars or not.
+        self._prefetch = self._prefetch_unknown
+        self._single_jar = None
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if not self._chunk:
+            self._get_next_chunk()
+        if not self._chunk:
+            raise StopIteration
+
+        return self._chunk.pop()
+
+    next = __next__ # Python 2
+
+    def _get_next_chunk(self, _islice=itertools.islice):
+        if self.iterable is None:
+            self._chunk = None
+            return
+
+        raw_chunk = list(_islice(self.iterable, self.chunk_size))
+        self._prefetch(raw_chunk)
+        self._chunk = raw_chunk
+        if not raw_chunk or len(raw_chunk) < self.chunk_size:
+            # We're done.
+            self.iterable = None # Signal that to __next__
+            self._prefetch = None # break the cycle
+            self._single_jar = None # why not
+
+    def _prefetch_unknown(self, raw_chunk):
+        for _, obj in raw_chunk:
+            jar = getattr(obj, '_p_jar', None)
+            if jar is not None:
+                # Hey hey, now we can find out if we need to
+                # actually group or not.
+                if len(jar.db().databases) > 1:
+                    self._prefetch = self._prefetch_multidb
+                else:
+                    self._prefetch = self._prefetch_singledb
+                    self._single_jar = jar
+                self._prefetch(raw_chunk)
+                # We have our answer we can quit now.
+                break
+        # We never encountered a persistent object. How sad.
+
+    def _prefetch_multidb(self, raw_chunk, _defaultdict=collections.defaultdict):
+        by_jar = _defaultdict(set) # {jar: [oids]}
+        for _, obj in raw_chunk:
+            jar = getattr(obj, '_p_jar', None)
+            by_jar[jar].add(getattr(obj, '_p_oid', None))
+
+        by_jar.pop(None) # lose the non-persistent objects
+        for jar, oids in by_jar.items():
+            oids.discard(None) # Lose persistent objects that aren't saved
+            jar.prefetch(oids)
+
+    def _prefetch_singledb(self, raw_chunk):
+        oids = {
+            getattr(obj, '_p_oid', None)
+            for _, obj
+            in raw_chunk
+        }
+        oids.discard(None) # lose the non-persistent objects, and those not saved
+        self._single_jar.prefetch(oids)
+
+
 class Catalog(_ZCatalog):
     """
     An extended catalog. Features include:
@@ -111,17 +221,27 @@ class Catalog(_ZCatalog):
 
     family = BTrees.family64
 
+    PREFETCH_CHUNK_SIZE = 512
+
     def _visitAllSublocations(self):
         return super(Catalog, self)._visitSublocations()
 
     def _visitSublocations(self):
         no_auto_inst = INoAutoIndex.providedBy
         no_auto_class = INoAutoIndex.implementedBy
+        # Try to avoid activating the object if not necessary
+        # by first checking if the class is INoAutoIndex.
+        # We'll just need to check instances down below.
+        no_auto_class_sublocations = (
+            x
+            for x in self._visitAllSublocations()
+            if not no_auto_class(type(x[1]))
+        )
+        prefetched = CatalogPrefetchIterator(no_auto_class_sublocations,
+                                             self.PREFETCH_CHUNK_SIZE)
 
-        for uid, obj in self._visitAllSublocations():
-            # Try to avoid activating the object if not necessary
-            # by first checking if the class is INoAutoIndex.
-            if no_auto_class(type(obj)) or no_auto_inst(obj):
+        for uid, obj in prefetched:
+            if no_auto_inst(obj):
                 continue
             yield uid, obj
 

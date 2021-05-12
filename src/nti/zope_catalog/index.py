@@ -16,7 +16,7 @@ from __future__ import print_function
 try:
     from collections.abc import Mapping
     from collections.abc import Iterable
-except ImportError:
+except ImportError: # pragma: no cover
     from collections import Mapping
     from collections import Iterable
 
