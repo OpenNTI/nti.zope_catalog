@@ -5,7 +5,9 @@
 3.0.1 (unreleased)
 ==================
 
-- Nothing changed yet.
+- Fix the ``ExtentFilteredSet`` to only unindex documents that were
+  previously indexed. This avoids an extra ``readCurrent`` call. See
+  `issue 12 <https://github.com/NextThought/nti.zope_catalog/issues/12>`_.
 
 
 3.0.0 (2021-05-12)
