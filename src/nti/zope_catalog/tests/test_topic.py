@@ -8,13 +8,15 @@ from __future__ import print_function
 # stdlib imports
 import unittest
 
+
+from hamcrest import assert_that
+from hamcrest import is_
+
 from zope.index.topic.filter import PythonFilteredSet
 
 from nti.zope_catalog.topic import ExtentFilteredSet
 from nti.zope_catalog.topic import TopicIndex
 
-from hamcrest import assert_that
-from hamcrest import is_
 
 __docformat__ = "restructuredtext en"
 
@@ -123,3 +125,35 @@ class TestExtentFilteredSet(unittest.TestCase):
         extent_extent = extent.getExtent()
         assert_that(list(extent_extent.set),
                     is_([1]))
+
+    def test_index_doc_doesnt_unindex_on_ValueError(self):
+        extent = ExtentFilteredSet('extent', default_expression)
+        in_none = Context(docid=4)
+        extent.unindex_doc = lambda *args: self.fail("Should not call")
+        extent.index_doc(in_none.docid, in_none)
+
+        assert_that(extent.ids(), is_(()))
+
+    def test_index_doc_doesnt_unindex_on_ValueError_with_jar(self):
+        extent = ExtentFilteredSet('extent', default_expression)
+
+
+        in_extent = Context(in_extent=True, docid=1)
+        in_none = Context(docid=4)
+        # The Python implementation of BTrees always calls readCurrent, but
+        # the C implementation doesn't do it if its empty.
+        extent.index_doc(in_extent.docid, in_extent)
+
+        # Now break the jar
+        class MockJar(object):
+            def readCurrent(self, _):
+                raise AssertionError("Should not call") # pragma: no cover
+
+        extent._ids._p_jar = MockJar()
+        extent._ids._p_oid = b'12345678'
+        extent._extent._p_jar = MockJar()
+        extent._extent._p_oid = b'12345678'
+
+        extent.index_doc(in_none.docid, in_none)
+
+        assert_that(extent.ids(), is_((1,)))

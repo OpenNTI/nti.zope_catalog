@@ -130,7 +130,16 @@ class ExtentFilteredSet(FilteredSetBase):
         try:
             self._extent.add(docid, context)
         except ValueError:
-            self.unindex_doc(docid)
+            # Only unindex if it was found in the index to start with.
+            # Trying to remove a missing docid still leads to readCurrent()
+            # being called on the underlying BTree set unnecessarily.
+            # This leads to traversing the BTree twice in the uncommon case
+            # of removing an existing object, but that's fine.
+            # (TODO: Can there be persistence errors that break `in` but let
+            # `remove()` keep working?)
+            # See https://github.com/NextThought/nti.zope_catalog/issues/12
+            if docid in self._ids:
+                self.unindex_doc(docid)
 
     def getExtent(self):
         """
