@@ -12,7 +12,7 @@ Catalog
 
 .. automodule:: nti.zope_catalog.catalog
 
-Normazilation
+Normalization
 =============
 
 There are several helpers for indexes that normalize values.
