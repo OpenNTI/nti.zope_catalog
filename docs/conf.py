@@ -30,11 +30,14 @@
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
+
 extensions = [
     'sphinx.ext.autodoc',
-    'sphinx.ext.intersphinx',
-    'sphinx.ext.viewcode',
     'sphinx.ext.doctest',
+    'sphinx.ext.extlinks',
+    'sphinx.ext.intersphinx',
+    'sphinx.ext.todo',
+    'sphinx.ext.viewcode',
     'repoze.sphinx.autointerface',
 ]
 
@@ -71,7 +74,7 @@ version = '.'.join(release.split('.')[:2])
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
-language = None
+language = 'en'
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -84,6 +87,10 @@ pygments_style = 'sphinx'
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = False
 
+# The reST default role (used for this markup: `text`) to use for all
+# documents.
+#
+default_role = 'obj'
 
 # -- Options for HTML output ----------------------------------------------
 
@@ -165,11 +172,11 @@ texinfo_documents = [
 
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {
-    'https://docs.python.org/': None,
-    'https://ntizodb.readthedocs.io/en/latest': None,
-    'https://persistent.readthedocs.io/en/latest': None,
-    'https://zopecatalog.readthedocs.io/en/latest': None,
-    'https://zopecontainer.readthedocs.io/en/latest': None,
+    'python': ('https://docs.python.org/', None,),
+    'ntizodb': ('https://ntizodb.readthedocs.io/en/latest', None),
+    'persistent': ('https://persistent.readthedocs.io/en/latest', None,),
+    'zopecatalog': ('https://zopecatalog.readthedocs.io/en/latest', None,),
+    'zopecontainer': ('https://zopecontainer.readthedocs.io/en/latest', None,),
 }
 
 extlinks = {
