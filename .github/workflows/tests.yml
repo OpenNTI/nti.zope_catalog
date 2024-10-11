@@ -11,44 +11,45 @@ jobs:
   test:
     strategy:
       matrix:
-        # XXX: PyPy 3, both 3.6 and 3.7 (7.3.4) crash in the test
-        # suite when calling a C extension. It's likely
-        # zopyx.txng3.ext, which compiles with many warnings.
-        python-version: [2.7, pypy2, 3.6, 3.7, 3.8, 3.9]
+        python-version: ["3.12", "pypy-3.10-v7.3.17", '3.9', '3.10', '3.11', "3.13"]
 
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Pip cache
-      uses: actions/cache@v2
-      with:
-        path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ matrix.python-version }}-${{ hashFiles('setup.*') }}
-    - name: Install dependencies
-      run: |
-        python -m pip install -U pip setuptools wheel
-        python -m pip install -U coverage
-        python -m pip install -U -e ".[test,docs]"
-    - name: Test
-      run: |
-        coverage run -m zope.testrunner --test-path=src  --auto-color --auto-progress
-        coverage run -a -m sphinx -b doctest -d docs/_build/doctrees docs docs/_build/doctests
-        coverage report -i
-    - name: Submit to Coveralls
-      # This is a container action, which only runs on Linux.
-      uses: AndreMiras/coveralls-python-action@develop
-      with:
-        parallel: true
+      - name: checkout
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+          cache-dependency-path: setup.py
+      - name: Install dependencies
+        run: |
+          python -m pip install -U pip setuptools wheel
+          python -m pip install -U coverage
+          python -m pip install -U -e ".[test,docs]"
+      - name: Test
+        run: |
+          coverage run -m zope.testrunner --test-path=src  --auto-color --auto-progress
+          coverage run -a -m sphinx -b doctest -d docs/_build/doctrees docs docs/_build/doctests
+      - name: Report coverage
+        run: |
+          python -m coverage combine || true
+          python -m coverage report -i || true
+          python -m coverage xml -i || true
+      - name: Submit to Coveralls
+        # This is a container action, which only runs on Linux.
+        uses: coverallsapp/github-action@v2
+        with:
+          flag-name: run-${{ join(matrix.*, '-') }}
+          parallel: true
+          format: cobertura
 
   coveralls_finish:
     needs: test
     runs-on: ubuntu-latest
     steps:
-    - name: Coveralls Finished
-      uses: AndreMiras/coveralls-python-action@develop
-      with:
-        parallel-finished: true
+      - name: Coveralls Finished
+        uses: coverallsapp/github-action@v2
+        with:
+          parallel-finished: true

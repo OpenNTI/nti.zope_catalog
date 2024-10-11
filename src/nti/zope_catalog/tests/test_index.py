@@ -339,23 +339,5 @@ class TestAttributeTextIndex(unittest.TestCase):
         index.index_doc(1, self)
 
         assert_that(index.documentCount(), is_(1))
-
-        # Make sure the words got stemmed correctly. This fails
-        # if zopyx.txng3.ext is not installed.
-        assert_that(index.lexicon.get_wid('resources'), is_(0))
-        assert_that(index.lexicon.get_wid('resource'), is_(0))
-        assert_that(index.lexicon.get_wid('resourc'), is_not(0))
-
-
-
-        assert_that(index.apply("resource"),
-                    contains(1))
-
-        assert_that(index.apply("human"),
-                    contains(1))
-
-        assert_that(index.apply("valuable"),
-                    contains(1))
-
-        assert_that(list(index.apply("resource*")),
-                    is_([]))
+        # This used to contain tests that the zopyx.txng3.ext stemmer
+        # was being used. That isn't supported any more.

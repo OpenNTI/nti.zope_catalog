@@ -2,10 +2,13 @@
  Changes
 =========
 
-3.0.2 (unreleased)
+4.0.0 (unreleased)
 ==================
 
-- Nothing changed yet.
+- Drop support for Python 2. We now only support Python 3.9 and above.
+- Add support for Python 3.10, 11, 12, and 13.
+- Remove dependency on ``zopyx.txng3.ext``.
+- Remove dependency on ``pkg_resources``.
 
 
 3.0.1 (2021-05-13)
