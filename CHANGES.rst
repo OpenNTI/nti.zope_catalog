@@ -2,7 +2,7 @@
  Changes
 =========
 
-4.0.0 (unreleased)
+4.0.0 (2024-10-11)
 ==================
 
 - Drop support for Python 2. We now only support Python 3.9 and above.
