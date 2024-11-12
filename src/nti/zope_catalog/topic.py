@@ -9,11 +9,8 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-# stdlib imports
-try:
-    from collections.abc import Mapping
-except ImportError: # pragma: no cover
-    from collections import Mapping
+
+from collections.abc import Mapping
 
 import BTrees
 from zc.catalog.extentcatalog import FilterExtent
@@ -77,7 +74,7 @@ class TopicIndex(_TopicIndex, Contained):
                 query = {'operator': 'or', 'query': query['any_of']}
             elif 'all_of' in query:
                 query = {'operator': 'and', 'query': query['all_of']}
-        return super(TopicIndex, self).apply(query)
+        return super().apply(query)
 
 
 class ExtentFilteredSet(FilteredSetBase):
@@ -115,7 +112,7 @@ class ExtentFilteredSet(FilteredSetBase):
                 ``IFoo.providedBy``, instead pass a global (function) object
                 in your own module.
         """
-        super(ExtentFilteredSet, self).__init__(fid, expr, family=family)
+        super().__init__(fid, expr, family=family)
         # The super implementation calls clear() to establish `_ids`
 
     def ids(self):

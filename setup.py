@@ -33,7 +33,6 @@ setup(
         'License :: OSI Approved :: Apache Software License',
         'Programming Language :: Python :: 3',
         "Programming Language :: Python :: 3 :: Only",
-        'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: 3.11',
         'Programming Language :: Python :: 3.12',
@@ -49,7 +48,6 @@ setup(
     packages=find_namespace_packages(where='src'),
     package_dir={'': 'src'},
     include_package_data=True,
-    tests_require=TESTS_REQUIRE,
     install_requires=[
         'BTrees >= 4.8.0',
         'nti.property >= 1.0.0',
@@ -75,5 +73,5 @@ setup(
             'sphinx_rtd_theme',
         ],
     },
-    python_requires=">=3.9",
+    python_requires=">=3.10",
 )

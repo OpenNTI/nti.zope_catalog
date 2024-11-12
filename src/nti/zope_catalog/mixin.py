@@ -17,7 +17,7 @@ class AbstractNormalizerMixin(object):
     :meth:`value` by default; for more specific behaviour, override
     the corresponding method.
     """
-
+    # pylint:disable=unused-argument
     def any(self, value, index):
         return (self.value(value),)
 

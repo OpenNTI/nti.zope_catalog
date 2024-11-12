@@ -30,7 +30,7 @@ class TestStringNormalizer(unittest.TestCase):
     def test_value(self):
         assert_that(StringTokenNormalizer().value(b'ABC'),
                     is_('abc'))
-        assert_that(StringTokenNormalizer().value(u'ABC'),
+        assert_that(StringTokenNormalizer().value('ABC'),
                     is_('abc'))
 
     def test_index_search(self):

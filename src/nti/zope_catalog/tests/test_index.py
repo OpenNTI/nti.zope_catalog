@@ -17,7 +17,7 @@ from hamcrest import has_key
 from hamcrest import has_length
 from hamcrest import has_property
 from hamcrest import is_
-from hamcrest import is_not
+
 from hamcrest import none
 from hamcrest import raises
 
@@ -42,7 +42,7 @@ family = BTrees.family64
 class TestNormalizingFieldIndex(unittest.TestCase):
 
     def setUp(self):
-        super(TestNormalizingFieldIndex, self).setUp()
+        super().setUp()
         class _NormalizingIndex(NormalizingFieldIndex):
             def normalize(self, value):
                 return value.lower() if value else value
@@ -80,7 +80,7 @@ class TestNormalizingFieldIndex(unittest.TestCase):
 class TestValueIndex(unittest.TestCase):
 
     def setUp(self):
-        super(TestValueIndex, self).setUp()
+        super().setUp()
         self.index = ValueIndex()
 
     def test_zip(self):
@@ -93,7 +93,7 @@ class TestValueIndex(unittest.TestCase):
 class TestSetIndex(unittest.TestCase):
 
     def setUp(self):
-        super(TestSetIndex, self).setUp()
+        super().setUp()
         self.index = SetIndex()
 
     def test_zip(self):
@@ -106,7 +106,7 @@ class TestSetIndex(unittest.TestCase):
 class TestIntegerValueIndex(unittest.TestCase):
 
     def setUp(self):
-        super(TestIntegerValueIndex, self).setUp()
+        super().setUp()
         self.index = IntegerValueIndex()
 
     def test_zip(self):
@@ -121,7 +121,7 @@ class TestNormalizingKeywordIndex(unittest.TestCase):
     field = 'VALUE'
 
     def setUp(self):
-        super(TestNormalizingKeywordIndex, self).setUp()
+        super().setUp()
         self.index = NormalizingKeywordIndex()
 
     def test_family(self):
@@ -269,7 +269,7 @@ class TestCaseInsensitiveAttributeIndex(unittest.TestCase):
     field = 'VALUE'
 
     def setUp(self):
-        super(TestCaseInsensitiveAttributeIndex, self).setUp()
+        super().setUp()
         self.index = CaseInsensitiveAttributeFieldIndex('field')
 
     def test_family(self):
@@ -285,7 +285,7 @@ class TestIntegerAttributeIndex(unittest.TestCase):
     field = 1234
 
     def setUp(self):
-        super(TestIntegerAttributeIndex, self).setUp()
+        super().setUp()
         self.index = IntegerAttributeIndex('field')
 
     def test_family(self):
@@ -331,7 +331,7 @@ class TestIntegerAttributeIndex(unittest.TestCase):
 
 class TestAttributeTextIndex(unittest.TestCase):
 
-    field = u'Humans are valuable resources and the more we have of them the better'
+    field = 'Humans are valuable resources and the more we have of them the better'
 
     def test_query_stemmer(self):
         index = AttributeTextIndex('field',

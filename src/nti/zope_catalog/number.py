@@ -11,7 +11,7 @@ from __future__ import print_function
 from persistent import Persistent
 from zc.catalog.interfaces import INormalizer
 from zope import interface
-from zope.cachedescriptors.property import CachedProperty
+
 
 from nti.zodb.containers import bit64_int_to_time as bit64_int_to_number
 from nti.zodb.containers import time_to_64bit_int as number_to_64bit_int

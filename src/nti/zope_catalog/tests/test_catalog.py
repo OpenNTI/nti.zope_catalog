@@ -61,19 +61,18 @@ class PersistentContent(Persistent):
 class MockCatalog(Catalog):
 
     def __init__(self):
-        super(MockCatalog, self).__init__()
+        super().__init__()
         self.mock_catalog_data = [
             (1, Content()),
             (2, NoIndexContent())
         ]
 
     def _visitAllSublocations(self):
-        for thing in self.mock_catalog_data:
-            yield thing
+        yield from self.mock_catalog_data
 
 
 class IDNE(interface.Interface): # pylint:disable=inherit-non-class
-    "Not implemented by anything"
+    """Not implemented by anything"""
 
 class TestCatalog(unittest.TestCase):
 
@@ -133,7 +132,7 @@ class TestCatalogFull(TestCatalog):
 
         noindex = NoIndex()
         with self.assertRaises(MyException):
-            INoAutoIndex.providedBy(noindex)
+            INoAutoIndex.providedBy(noindex) # pylint:disable=no-value-for-parameter
 
         cat = self._makeOne()
         cat.mock_catalog_data.append((3, noindex))
@@ -220,7 +219,7 @@ class TestResultSet(unittest.TestCase):
 
     def test_iter(self):
         class UIDS(object):
-            def getObject(self, uid):
+            def getObject(self, uid): # pylint:disable=unused-argument
                 return self
 
         uids = UIDS()
@@ -233,7 +232,7 @@ class TestResultSet(unittest.TestCase):
         # The functionality itself is broken.
         import warnings
         class UIDS(object):
-            def queryObject(self, uid):
+            def queryObject(self, uid): # pylint:disable=unused-argument
                 return None
 
         with warnings.catch_warnings(record=True) as w:

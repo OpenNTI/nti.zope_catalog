@@ -8,17 +8,9 @@ All of the indexes we define are compatible with both
 syntax (and public attributes).
 """
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
-# stdlib imports
-try:
-    from collections.abc import Mapping
-    from collections.abc import Iterable
-except ImportError: # pragma: no cover
-    from collections import Mapping
-    from collections import Iterable
+import logging
+from collections.abc import Mapping
+from collections.abc import Iterable
 
 import BTrees
 import six
@@ -44,7 +36,7 @@ from nti.zope_catalog.interfaces import IValueIndex
 
 __docformat__ = "restructuredtext en"
 
-logger = __import__('logging').getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 def is_nonstr_iter(x):
@@ -71,7 +63,7 @@ class _ZCApplyMixin(object):
 
     def apply(self, query):
         query = convertQuery(query)
-        return super(_ZCApplyMixin, self).apply(query)
+        return super().apply(query)
 
 
 class _ZCAbstractIndexMixin(object):
@@ -116,16 +108,16 @@ class NormalizingFieldIndex(_ZipMixin,
     family = BTrees.family64
 
     def normalize(self, value):
-        "Subclasses must override this method."
+        """Subclasses must override this method."""
         raise NotImplementedError()
 
     def index_doc(self, docid, value):
-        super(NormalizingFieldIndex, self).index_doc(
+        super().index_doc(
             docid, self.normalize(value))
 
     def apply(self, query):
         query = tuple(self.normalize(x) for x in query)
-        return super(NormalizingFieldIndex, self).apply(query)
+        return super().apply(query)
 
     def ids(self):
         return self._rev_index.keys()
@@ -164,6 +156,7 @@ class ValueIndex(_ZCApplyMixin,
     "An index of raw values."
 
 
+# pylint:disable-next=too-many-ancestors
 class AttributeValueIndex(ValueIndex,
                           zc.catalog.catalogindex.ValueIndex):
     "An index of values stored in a particular attribute."
@@ -194,11 +187,12 @@ class IntegerValueIndex(_ZCApplyMixin,
     """
 
     def clear(self):
-        super(IntegerValueIndex, self).clear()
+        super().clear()
         self.documents_to_values = self.family.II.BTree()
         self.values_to_documents = self.family.IO.BTree()
 
 
+# pylint:disable=too-many-ancestors
 class IntegerAttributeIndex(IntegerValueIndex,
                             zc.catalog.catalogindex.ValueIndex):
     """
@@ -221,7 +215,7 @@ class NormalizingKeywordIndex(_SetZipMixin,
 
     family = BTrees.family64
 
-    def _parseQuery(self, query): # pylint:disable=too-many-branches
+    def _parseQuery(self, query): # pylint:disable=too-many-branches,too-complex
         if isinstance(query, Mapping):
             if 'query' in query:  # support legacy
                 query_type = query.get('operator') or 'and'
@@ -235,7 +229,7 @@ class NormalizingKeywordIndex(_SetZipMixin,
                 query_type = query_type.lower()
         elif isinstance(query, six.string_types):
             query_type = 'and'
-        elif zc.catalog.interfaces.IExtent.providedBy(query):
+        elif zc.catalog.interfaces.IExtent.providedBy(query): # pylint:disable=no-value-for-parameter
             # This is iterable, so must go before that test.
             query_type = 'none'
         elif is_nonstr_iter(query):
@@ -259,20 +253,22 @@ class NormalizingKeywordIndex(_SetZipMixin,
         query_type, query = self._parseQuery(query)
         if query_type is None:
             res = self.family.IF.Set()
-        elif query_type in ('or', 'and'):
-            res = super(NormalizingKeywordIndex, self).search(
+        elif query_type in {'or', 'and'}:
+            res = super().search(
                 query, operator=query_type)
-        elif query_type in ('between',):
+        elif query_type in {'between',}:
             query = list(self._fwd_index.iterkeys(query[0], query[1]))
-            res = super(NormalizingKeywordIndex, self).search(
+            res = super().search(
                 query, operator='or')
         elif query_type == 'none':
+            # pylint:disable-next=no-value-for-parameter
             assert zc.catalog.interfaces.IExtent.providedBy(query)
             res = query & self.family.IF.Set(self.ids())
         elif query_type == 'any':
             if query is None:
                 res = self.family.IF.Set(self.ids())
             else:
+                # pylint:disable-next=no-value-for-parameter
                 assert zc.catalog.interfaces.IExtent.providedBy(query)
                 res = query & self.family.IF.Set(self.ids())
         else:
@@ -334,9 +330,9 @@ class NormalizationWrapper(_ZCApplyMixin,
         """
         # sadly we can't reuse any of the defaults from the super classes, and we
         # must rely on the order of parameters
-        # pylint:disable=useless-super-delegation
-        super(NormalizationWrapper, self).__init__(field_name, interface, field_callable,
-                                                   index, normalizer, is_collection)
+        # pylint:disable=useless-super-delegation,too-many-positional-arguments
+        super().__init__(field_name, interface, field_callable,
+                         index, normalizer, is_collection)
 
 
 # text

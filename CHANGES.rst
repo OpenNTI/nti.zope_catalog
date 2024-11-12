@@ -2,10 +2,11 @@
  Changes
 =========
 
-4.0.1 (unreleased)
+4.1.0 (unreleased)
 ==================
 
-- Nothing changed yet.
+- Drop support for Python 3.9.
+- Use native namespace packages.
 
 
 4.0.0 (2024-10-11)

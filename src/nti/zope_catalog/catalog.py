@@ -224,7 +224,7 @@ class Catalog(_ZCatalog):
     PREFETCH_CHUNK_SIZE = 512
 
     def _visitAllSublocations(self):
-        return super(Catalog, self)._visitSublocations()
+        return super()._visitSublocations()
 
     def _visitSublocations(self):
         no_auto_inst = INoAutoIndex.providedBy
@@ -235,13 +235,13 @@ class Catalog(_ZCatalog):
         no_auto_class_sublocations = (
             x
             for x in self._visitAllSublocations()
-            if not no_auto_class(type(x[1]))
+            if not no_auto_class(type(x[1])) # pylint:disable=no-value-for-parameter
         )
         prefetched = CatalogPrefetchIterator(no_auto_class_sublocations,
                                              self.PREFETCH_CHUNK_SIZE)
 
         for uid, obj in prefetched:
-            if no_auto_inst(obj):
+            if no_auto_inst(obj): # pylint:disable=no-value-for-parameter
                 continue
             yield uid, obj
 
