@@ -9,6 +9,8 @@ include nose2.cfg
 include tox.ini
 include .travis.yml
 include *.txt
+include *.yml
+include .pylintrc
 include .nti_cover_package
 include .travis.yml
 include .isort.cfg
